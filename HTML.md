@@ -8,7 +8,8 @@
   - 宽度就是其内容的宽度，不可改变
   - 只能容纳文本或其它行内元素
   - 常见
-    - a：特殊！可包含块级元素，如 p
+    - a
+      - 可包含除自身以外任何元素
     - button
     - img
     - input
@@ -26,6 +27,7 @@
     - canvas
     - div
     - p
+      - 不能包含任何块级元素，包括自身
     - ul/ol
     - table/tbody/thead/tfoot/th/tr/td
     - hr
