@@ -34,3 +34,34 @@
 
   - 可以理解为自动计算好的 rem
   - 直接按照设计稿的数值书写即可
+
+## 弹性盒子
+
+- 采用 flex 布局的元素称为 flex-container，其子元素自动成为 flex-item
+- 存在主轴（main start—main end）和交叉轴（cross start—cross end）
+- flex-container 属性
+  - flex-direction：主轴方向
+  - flex-wrap：如何换行
+  - flex-row：上面两者的组合
+  - justify-content：主轴对齐方式
+  - align-items：交叉轴对齐方式
+  - align-content：内容对齐方式（同时影响在两个轴上的表现）
+- flex-item 属性
+  - order：排列顺序，越小越前
+  - flex-grow：放大比例（121 就是 25%50%25%）
+  - flex-shrink：如果空间不足，该项目将缩小
+  - flex-basis：在分配多余空间之前项目占据的主轴空间
+  - flex：上面三者的组合
+  - align-self：可覆盖 align-items
+
+## 计算属性
+
+```css
+div {
+    width: calc(100% - 10px);
+}
+```
+
+- 计算长度值
+- 运算符前后必须有空格
+
