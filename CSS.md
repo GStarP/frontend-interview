@@ -56,6 +56,8 @@
 
 ## 计算属性
 
+[点击查看](./css/calc.html)
+
 ```css
 div {
     width: calc(100% - 10px);
@@ -65,3 +67,21 @@ div {
 - 计算长度值
 - 运算符前后必须有空格
 
+## 盒模型
+
+[点击查看](./css/box-sizing.html)
+
+- 盒模型的基本规范：margin-border-padding-content(width, height)
+- 应用 box-sizing: border-box 后
+  - width = border + padding + content-width（height 亦同）
+  - 假设 width 为 50%， padding 为 10 px，父元素宽度为 300px
+  - 如果不添加 box-sizing: border-box，则其实际宽度并非 150px 而是 150+10+10=170 px
+- margin/padding 设置百分比：按 content 的百分比
+- background-clip
+  - border-box：带 border
+  - padding-box：不带 border 带 padding
+  - content-box：不带 border/padding，只带 content
+- outline
+  - 类似 border，但不占空间
+
+> 更多参见 [MDN 盒模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/The_box_model)
