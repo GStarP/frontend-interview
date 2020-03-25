@@ -42,6 +42,18 @@ Vue.nextTick().then(function () {
   - 第二个 tick（就是所说的下次 DOM 更新循环），同步任务执行完毕，开始执行异步队列的任务，更新 DOM（会先尝试使用 Promise.then 和 MessageChannel，若不支持则改用 setTimeout(fn, 0)）
   - 第三个 tick，执行 nexTick 中定义的回调
 - 在 created 和 mounted 阶段，需要操作渲染后的视图必须使用 nextTick（因为 mounted 不保证其子组件渲染完成）
+- 实现
+  - Vue 2.5 之前：采用 MutationObserver 实现
+    - MutationObserver 能监听 DOM 节点的更改
+      - var mo = new MutationObserver(function() { callback })
+      - mo.observe(element)
+    - Vue 的做法是通过监听一个自己创建的文本节点，然后让文本节点的数据在 '0' 和 '1' 之间变化，以此来触发 MutationObserver 执行回调，也就是我们在 nextTick 中定义的回调
+    - 利用了 MutationObserver 是微任务，微任务总是在宏任务结束，渲染完成后被执行，所以可以获取到更新后的 DOM
+  - Vue 2.5 及之后：由于 MutationObserver 在 IOS 未被支持，被迫降级
+    - 降级顺序
+      - setImmediate：微任务
+      - MessageChannel 的回调：微任务
+      - setTimeout(, 0)：宏任务，有 4ms 的延迟
 
 ## 生命周期
 

@@ -85,3 +85,15 @@ div {
   - 类似 border，但不占空间
 
 > 更多参见 [MDN 盒模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/The_box_model)
+
+## 文档流和文本流
+
+- 文档流（Normal Flow）
+  - CSS 中默认的定位方式（行内左到右，块级占一行...）
+  - 针对盒模型
+- 文本流
+  - 针对文本
+- float
+  - 脱离文档流而不脱离文本流，因此会出现其它元素的文本环绕着浮动元素的情况
+- fixed/absolute
+  - 会同时脱离文档流和文本流，其他元素和文本都会在这个元素底下被遮掩
