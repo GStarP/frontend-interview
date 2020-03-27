@@ -76,7 +76,8 @@ div {
   - width = border + padding + content-width（height 亦同）
   - 假设 width 为 50%， padding 为 10 px，父元素宽度为 300px
   - 如果不添加 box-sizing: border-box，则其实际宽度并非 150px 而是 150+10+10=170 px
-- margin/padding 设置百分比：按 content 的百分比
+- margin/padding 设置百分比
+  - 都是根据父容器的宽度来决定的
 - background-clip
   - border-box：带 border
   - padding-box：不带 border 带 padding
@@ -97,3 +98,56 @@ div {
   - 脱离文档流而不脱离文本流，因此会出现其它元素的文本环绕着浮动元素的情况
 - fixed/absolute
   - 会同时脱离文档流和文本流，其他元素和文本都会在这个元素底下被遮掩
+
+## 过渡函数
+
+```css
+transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezier(n,n,n,n);
+```
+
+- linear：以相同速度开始至结束，= cubic-bezier(0,0,1,1)
+- ease：慢速开始，然后变快，然后慢速结束，= cubic-bezier(0.25,0.1,0.25,1)
+- ease-in：慢速开始，= cubic-bezier(0.42,0,1,1)
+- ease-out：慢速结束，= cubic-bezier(0,0,0.58,1)
+- ease-in-out：慢速开始慢速结束，= cubic-bezier(0.42,0,0.58,1)
+- cubic-bezier(0, n, n, 1)
+  - n 取值 0~1
+  - 贝赛尔曲线：0,0 和 1,1 是函数的起始点；其他两个点拉伸出一条速度曲线（[详情](https://www.runoob.com/cssref/func-cubic-bezier.html)）
+
+## position
+
+- static：默认，忽略 left/right/top/bottom/z-index
+- inherit：继承父元素
+- relative：相对正常位置通过 left/right/top/bottom 偏移
+- absolute：相对于第一个非 static 定位的父元素进行定位
+- fixed：相对于浏览器窗口进行定位
+
+## 两列布局
+
+[点击查看](./css/double-col.html)
+
+- 要求：左侧宽度固定，右侧宽度自适应
+- 方法一：flex 布局，左侧固定宽度，右侧 flex: 1
+- 方法二：左侧 absolute，右侧 margin-left 等于左侧宽度
+
+## 三列布局
+
+[双圣杯](./css/triple-col-ssb.html)
+
+[Flex](./css/triple-col-flex.html)
+
+- 要求
+  - 左右宽度固定，中间自适应
+  - 中间在 DOM 上优先（先行渲染）
+  - 允许任意一列优先
+- 圣杯布局
+  - 对 left&center&right 都是用 float: left
+    - 注意还要为 footer 设置清除浮动 clear: both
+  - container 左右 padding 等于左右列宽度
+  - 将 left 使用 margin-left: -100% 放到 center 左侧（因为 DOM 中 center 在最前面）
+  - 然后用 position: relative 加 right: [左宽度] 使 left 移到左侧
+  - right 使用 margin-right: -[右宽度] 使 right 移到右侧
+  - 但为了保证最小宽度，需要设置 container 的 min-width: [左+左+右]
+- Flex
+  - left 设置 order 为 -1 保证在最前
+

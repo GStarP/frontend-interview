@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+	  body {
+		min-width: 500px;
+	  }
+	  #header {
+		height: 64px;
+		background-color: black;
+	  }
+	  #footer {
+		height: 36px;
+		background-color: black;
+		clear: both;
+	  }
+	  #container {
+		padding-left: 150px;
+		padding-right: 200px;
+	  }
+	  .column {
+		float: left;
+	  }
+	  #left {
+		height: 300px;
+		width: 150px;
+		margin-left: -100%;
+		position: relative;
+		right: 150px;
+		background-color: blue;
+	  }
+	  #right {
+		height: 300px;
+		width: 200px;
+		margin-right: -200px;
+		background-color: green;
+	  }
+	  #center {
+		width: 100%;
+		background-color: yellow;
+	  }
+    </style>
+    <div id="header"></div>
+	<div id="container">
+		<div id="center" class="column">
+			<div style="height: 400px; width: 100%;"></div>
+		</div>
+		<div id="left" class="column"></div>
+		<div id="right" class="column"></div>
+	</div>
+	<div id="footer"></div>
+  </body>
+</html>

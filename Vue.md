@@ -73,3 +73,31 @@ Vue.nextTick().then(function () {
 - beforeDestroy：实例未销毁
 - destroyed：实例已销毁
 
+## Vue 和 React 的区别
+
+> [Vue.js - 对比其它框架](https://cn.vuejs.org/v2/guide/comparison.html)
+
+- 在 React 中，当某个组件的状态发生变化时，将会以该组件为根，重新渲染整个组件子树；如果要避免不必要的子组件重新渲染，需要自己使用 PureComponent 和 shouldComponentUpdate 来控制
+  - 在 Vue 中，组件的依赖是在渲染过程中自动追踪的，所以系统能精确知晓哪些组件需要被重新渲染
+- 在 React 中，一切都是 JS，HTML 可以用 JSX 来表达；CSS 用 Css-in-JS 的方式表达
+  - 在 Vue 中，更推荐使用 template，方便现有应用迁移，方便熟悉 HTML 的开发者
+  - 在 Vue 中，你可以更灵活地使用任意预处理器/后处理器，通过 loader 配置样式设置
+    - scoped：组件会自动添加一个唯一属性（如 data-v-21e5b78），样式会被编译为 .class[data-v-21e5b78]
+
+## v-model
+
+- 语法糖
+
+```html
+<input v-model="msg">
+<!-- 等价于 -->
+<input :value="msg" @input="msg=$event.target.value">
+```
+
+## Nuxt
+
+- SSR
+  - 只有 beforeCreate 和 created 会在服务端渲染的过程中被调用
+    - 应该避免在其中使用 setInterval 这样的函数，因为无法在 beforeDestroy 时销毁
+- TODO
+

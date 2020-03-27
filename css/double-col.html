@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+		flex-direction: column
+      }
+	  .c {
+		position: relative;
+		width: 100%;
+		height: 50%;
+	  }
+	  .c>div {
+		height: 100%;
+	  }
+	  .c1 {
+		display: flex;
+	  }
+	  .left-1 {
+		width: 300px;
+		background-color: blue;
+	  }
+	  .right-1 {
+		flex: 1;
+		background-color: green;
+	  }
+	  .left-2 {
+		width: 300px;
+		background-color: green;
+		position: absolute;
+	  }
+	  .right-2 {
+		margin-left: 300px;
+		background-color: blue;
+	  }
+    </style>
+    <div class="container">
+      <div class="c c1">
+		<div class="left-1"></div>
+		<div class="right-1"></div>
+	  </div>
+	  <div class="c">
+		<div class="left-2"></div>
+		<div class="right-2"></div>
+	  </div>
+    </div>
+  </body>
+</html>

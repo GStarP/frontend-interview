@@ -73,7 +73,7 @@ function patch (oldVnode, vnode) {
 - patchVnode
 
 ```js
-patchVnode (oldVnode, vnode) {
+function patchVnode (oldVnode, vnode) {
     // 让新 vnode 的 el(原本为 null) 指向这个真实的 DOM 节点
     // el 变化时 vnode.el 也会同步变化!
     const el = vnode.el = oldVnode.el
@@ -166,7 +166,7 @@ updateChildren (parentElm, oldCh, newCh) {
                     // key 相同但属性不同,也得创建新元素插入
                     api.insertBefore(parentElm, createEle(newStartVnode).el, oldStartVnode.el)
                 } else {
-                    // key 相同属性也想同,直接移过来
+                    // key 相同属性也相同,直接移过来
                     patchVnode(elmToMove, newStartVnode)
                     oldCh[idxInOld] = null
                     api.insertBefore(parentElm, elmToMove.el, oldStartVnode.el)

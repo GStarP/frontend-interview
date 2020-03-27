@@ -334,7 +334,7 @@ cuad(1)(2)()
   - 当界面需要重绘和回流时，该线程执行
   - 与 JS 引擎线程互斥！JS 引擎执行时 GUI 进程就被挂起！
 - JS 引擎线程
-  - 也成 JS 内核（如 V8 引擎）
+  - 也称 JS 内核（如 V8 引擎）
   - 一直等待任务队列中的任务到来然后处理
   - 一个 Tab 无论何时都只有一个 JS 线程在运行 JS
 - 事件触发线程
@@ -394,7 +394,7 @@ cuad(1)(2)()
 - GPU 中，各个复合图层是单独绘制的
   - 但也不要大量使用，否则资源消耗过度，页面也会很卡
 - 如何声明复合图层（可以用 More Tools-Rendering-Layer borders 检验）
-  - trslate3d，translateZ
+  - translate3d，translateZ
   - transform/opacity 动画：只有动画执行中才创建，动画结束后元素回到原来状态
   - `<video><iframe><canvas><webgl>`
   - 有一个包含复合层的子节点
