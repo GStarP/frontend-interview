@@ -1,6 +1,6 @@
 # HTML
 
-## 1. Inline & Block
+## Inline & Block
 
 - Inline（行内/内联元素）
   - 和其他元素在同一行上
@@ -33,7 +33,7 @@
     - hr
     - h1~6
 
-## 2. Reflow & Repaint
+## Reflow & Repaint
 
 - 它们是影响页面渲染速度的主要因素
 

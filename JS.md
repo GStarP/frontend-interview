@@ -51,6 +51,16 @@ let father = new Father()
 console.log(father.__proto__ === Father.prototype)  // true
 ```
 
+## new 的时候发生了什么
+
+```js
+var p = new Person()
+// 等价于
+var p = {}
+p.__proto__ = Person.prototype
+Person.call(p)
+```
+
 ## 原型链
 
 > [MDN 原型链](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
@@ -80,6 +90,61 @@ console.log(instance)
   - 试图访问不存在的属性时将会遍历整个原型链
   - 检查某个属性是否属于当前对象而不是它的原型链，使用从 Object.prototype 集成的 hasOwnProperty
     - hasOwnProperty() 和 Object.keys() 是唯二不会遍历原型链的方法
+
+## \_\_proto\_\_ 和 prototype
+
+```js
+// 我们现在有两个构造函数和两个实例对象
+function Father() {
+    this.name = 'father'
+    this.hello = function() {
+        console.log(this.name)
+    }
+}
+var f = new Father()
+function Son() {
+    this.name = 'son'
+}
+Son.prototype = new Father()
+var s = new Son()
+
+// 首先,我们要记住 prototype 是函数独有的属性,指向一个对象,这个对象的 constructor 是这个函数
+Father.prototype
+/**
+ * 我们暂时将其称为 FatherTemplate
+ * {
+ *   constructor: Father(),
+ *   __proto__: Object
+ * }
+ */
+
+// __proto__ 是对象(除了 null)都有的属性,指向其构造函数的 prototype
+f
+/**
+ * {
+ *   name: 'father',
+ *   hello: f(),
+ *   __proto__: FatherTemplate
+ * }
+ */
+s
+/**
+ * {
+ *   name: 'son',
+ *   __proto__: f
+ * }
+ */
+
+/**
+ * 总结
+ * 1.__proto__才是原型,原型链也是根据__proto__一路找上去
+ * 2.因为实例的__proto__指向构造函数的 prototype
+ *   所以可以把 prototype 理解为用这个构造函数创建实例时,实例所遵循的模板
+ *   因此我们平时想要在某个类上添加属性都是在 Class.prototype 上添加
+ * 3.但是 Son.prototype.constructor 是 Father(), 这在理解上有点障碍
+ *   因此我们下面提到的寄生组合继承解决了这个问题
+ */
+```
 
 ## 继承
 
@@ -129,6 +194,8 @@ console.log(son2.friends)
 - 优点
   - 能够自行调用父类构造函数，可以传参
   - son 无论如何不会影响到 son2
+- 缺点
+  - 不能通过 instanceOf 和 isPropertyOf 的检查，相当于只是属性和方法的挂载
 
 ### 组合
 
@@ -148,6 +215,7 @@ function Father(name) {
     this.friends = ['Tom']
 }
 function Son(father) {
+    // 拷贝了一份, 因此 son 不会影响 son2
     let s = Object(father)
     s.study = function() {
         console.log('studying...')
@@ -193,38 +261,99 @@ console.log(son2.friends)
 
 - 最佳选择
 
-## 任务队列
+## 作用域链
 
-> [Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly?_blank)
->
-> [对于 JS 任务队列的理解](https://segmentfault.com/a/1190000016295324)
+- 作用域
+  - 分为 全局作用域 和 函数作用域
+  - 作用域有上下级的关系
+- 作用域链
+  - 调用变量时，如果在当前的作用域没有查到，就沿着作用域链向上查找，直到全局作用域
+    - 上级作用域不能使用下级作用域的变量
 
-- 任务队列的分类
-  - 宏任务
-    - 整体代码
-    - setTimeout
-    - setInterval
-    - setImmidiate
-    - I/O
-    - UI 渲染
-  - 微任务
-    - process.nextTick
-    - Promise
-    - Object.observer
-  - 宏任务队列可以有多个，微任务队列只有一个
-  - 优先级
-    - 宏任务 > 微任务
-    - setTimeout > setImmidiate
-    - process.nextTick > Promise.then
-- 执行机制
-  - 按照顺序将同步任务依次放入执行栈中执行
-  - 期间产生的异步任务被加入两种任务队列
-  - 事件循环
-    - 执行栈空后，从微任务队列出队一个任务到执行栈，直到微任务队列空
-      - 如果中途又产生微任务，立即入队，并在此次循环中都执行完
-    - UI 线程接管，做渲染
-    - JS 线程接管，从宏任务队列出队一个任务到执行栈
-    - 重复事件循环
+## 闭包
+
+> [MDN 闭包](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)
+
+- 定义
+
+  - 闭包由函数以及声明该函数的词法环境（可以理解为闭包中定义的变量）构成的
+  - 闭包让你可以从函数内部访问外部函数作用域
+  - 每当函数被创建，就会在函数生成时生成闭包
+
+- 作用
+
+  - 定义私有变量/方法（且有命名空间的能力）
+
+  ```js
+  var makeCounter = function() {
+    var privateCounter = 0
+    return {
+      value: function() {
+        return privateCounter;
+      }
+    }
+  }
+  
+  var c1 = makeCounter();
+  c1.privateCounter  // undefined (起到了私有变量的功能)
+  c1.value()         // 0 (只能通过提供的共有函数访问)
+  ```
+
+  - 将变量保存在内存中，不会被垃圾回收机制回收
+    - 这里应该也可以谈函数柯里化
+
+  ```js
+  function f1() {
+    var n = 999
+    function f2() {
+      console.log(n)
+    }
+    return f2;
+  }
+  var print = f1()
+  print()
+  // 调用完 print 后, 由于 print 是全局变量, 因此 print 代表的 f2在内存中
+  // 而又因为 f2 依赖 f1, 所以 f1 也被保持在内存中
+  ```
+
+- 缺点
+
+  - 在处理速度和内存消耗方面有负面影响
+
+  ```js
+  function MyObject(name) {
+    this.name = name
+    this.getName = function() {
+      return this.name;
+    }
+  }
+  // 上面的写法会导致每次创建新的 MyObject, getName 函数都会被重新创建
+  // 所以应该改成这样
+  function MyObject(name) {
+    this.name = name
+  }
+  MyObject.prototype.getName = function() {
+    return this.name
+  }
+  ```
+
+  - 内存泄漏
+
+  ```js
+  function Car() {
+    this.color = ["white", "black"]
+  }
+  Car.prototype.getColor = function() {
+    var outerColor = this.color  // 保存一个副本到变量中
+    return function() {
+      return outerColor  // 应用这个副本
+    }
+    outerColor = null    // 用完之后要记得释放内存
+  }
+  var car = new Car()
+  console.log(car.getColor()())
+  ```
+
 
 ## bind
 
@@ -294,6 +423,111 @@ cuad(1)(2)()
 - 通过 call/apply 时只传入参数，对 this 没有影响
 - 没有 prototype
 - 不能当做 generator 函数，不能使用 yield
+
+## this
+
+- 本质：this 总是指向调用该函数的对象！
+- 在浏览器中，如果我们不指定，直接调用函数，调用函数的对象其实就是 window
+  - 在严格模式下，this 不会指向 window 而是 undefined
+
+```js
+function f() {
+    var name = "func"
+    console.log(this.name)
+}
+f()                  // undefined: 因为 window 对象里并没有定义 name 属性
+window.f()           // 等价于上一行
+var name = "window"
+f()                  // window: 打印出 window.name
+```
+
+- this 只会指向最近调用它的对象，而不会像原型链一样向上查找
+
+```js
+var a = {
+    x: 10,
+    b: {
+        f() {
+            console.log(this.x)
+        }
+    }
+}
+a.b.f()  // undefined: 因为 b.x 未定义, 并不会去找到 a.x
+```
+
+- new 关键字会将 this 指向创建的实例对象（原理见 [new 的时候发生了什么](##new 的时候发生了什么)）
+  - 但如果函数返回的是一个对象，则 this 指向这个返回的对象
+
+```js
+function F() {
+    this.name = "func"
+    return {}        // 删去这一行能打印出 func
+}
+var f = new F()
+console.log(f.name)  // undefined: this 指向的是返回的 {}
+```
+
+- apply，call，bind 会改变 this 指向
+- 箭头函数也会改变 this 指向
+
+```js
+var o1 = {
+    name: 'o1',
+    f() {
+        return function () {
+            console.log(this.name)
+        }
+    }
+}
+var f1 = o1.f()
+f1()  // undefined
+var name = 'window'
+f1()  //window
+
+var o2 = {
+    name: 'o2',
+    f() {
+        return () => {
+            console.log(this.name)
+        }
+    }
+}
+var f2 = o2.f()
+f2()  // o2
+```
+
+## 任务队列
+
+> [Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly?_blank)
+>
+> [对于 JS 任务队列的理解](https://segmentfault.com/a/1190000016295324)
+
+- 任务队列的分类
+  - 宏任务
+    - 整体代码
+    - setTimeout
+    - setInterval
+    - setImmidiate
+    - I/O
+    - UI 渲染
+  - 微任务
+    - process.nextTick
+    - Promise
+    - Object.observer
+  - 宏任务队列可以有多个，微任务队列只有一个
+  - 优先级
+    - 宏任务 > 微任务
+    - setTimeout > setImmidiate
+    - process.nextTick > Promise.then
+- 执行机制
+  - 按照顺序将同步任务依次放入执行栈中执行
+  - 期间产生的异步任务被加入两种任务队列
+  - 事件循环
+    - 执行栈空后，从微任务队列出队一个任务到执行栈，直到微任务队列空
+      - 如果中途又产生微任务，立即入队，并在此次循环中都执行完
+    - UI 线程接管，做渲染
+    - JS 线程接管，从宏任务队列出队一个任务到执行栈
+    - 重复事件循环
 
 ## 从浏览器多线程到 JS 单线程
 
@@ -424,3 +658,205 @@ cuad(1)(2)()
 - 解决方案
   - 用 setTimeout 模拟
   - 用 requestAnimationFrame 代替
+
+
+## 函数声明和函数表达式
+
+```js
+/* 函数声明 */
+// 可以在定义前调用
+f1()
+function f1() {
+	console.log('f1')
+}
+// 立即执行必须用 () 包裹
+(function f2() {
+    console.log('f2')
+})()
+```
+
+```js
+/* 函数表达式 */
+// 报错!不能在定义前调用
+f1()  
+var f1 = function() {
+    console.log('f1')
+}
+f1()  // f1
+// 立即执行直接加 () 即可
+var f2 = function() {
+    console.log('f2')
+}()
+// 函数命名只能在内部使用
+var f3 = function func() {
+    console.log(typeof func)
+}
+f3()    // function
+func()  // 报错!
+```
+
+## CommonJS 和 ES6 Module
+
+> [阮一峰](http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html)
+
+### CommonJS
+
+- 动态语法，可以写在条件判断里
+- 模块引入
+  - 基本数据类型：深拷贝
+  - 复杂数据类型：浅拷贝
+  - 使用 require 加载某个模块时，会运行整个模块的代码
+  - 使用 require 加载同一模块时，不会再执行一遍，而是取缓存里的值
+- require 本质其实是生成了一个对象
+
+```json
+{
+    id: '模块名'
+    exports: {...},  // 输出的接口
+    loaded: true     // 脚本是否执行完毕
+}
+```
+
+- 循环依赖
+  - 假设 a.js 和 b.js 互相依赖
+  - a 跑完前三行时引入 b，这时转到 b 去执行
+  - b 执行到依赖 a 的时候又去 a，此时只能拿到 a 前三行给出的东西
+  - b 拿到 a 前三行的东西，执行完毕，又回到 a
+  - a 拿到 b 全部给出的东西，执行至结束
+
+### ES6
+
+- 静态语法，只能写在顶层
+- 模块引入
+  - 只读引用：不论是基本还是复杂都不能更改
+    - 但可以对对象的属性和方法进行修改
+  - 动态：模块中的值如果发生变化，加载的值也会变化
+- 循环依赖
+  - ES6 不做缓存，是动态地去加载引用的数据
+  - 只要开发者保证通过引用能取到值就能够使用，不关心是否发生循环依赖
+
+## 精度问题
+
+> [JS 魔法堂：彻底理解 0.1 + 0.2 === 0.30000000000000004 的背后](https://www.cnblogs.com/fsjohnhuang/p/5115672.html)
+
+- 常见问题
+
+  - 0.1 + 0.2 === 0.30000000000000004
+  - 0.7 * 180 === 125.99999999998
+  - 1000000000000000128 === 1000000000000000129
+
+- Number
+
+  - 采用 IEEE 754 64 位双精度浮点编码
+  - 具体过程不做详述
+
+- 解决方法
+
+  - 保证运算的数字和结果都在 Number.MIN_SAFE_INTEGER 和 Number.MAX_SAFE_INTEGER
+    - 分别是正负 9007199254740991
+  - 这就牵扯到 浮点 $\rightarrow$ 整数，大数运算 的问题
+  - 下面给出两种比较简单的解决方案，但是可以想象，当小数位数较多时，会产生大数问题
+
+  ```js
+  function accAdd(arg1, arg2) {
+      var r1, r2, m, c;
+      // r1,r2 是 arg1,arg2 的小数位数
+      try {
+          r1 = arg1.toString().split(".")[1].length;
+      } catch (e) {
+          r1 = 0;
+      }
+      try {
+          r2 = arg2.toString().split(".")[1].length;
+      } catch (e) {
+          r2 = 0;
+      }
+      // 位数差值, 将他们补到相同位数
+      c = Math.abs(r1 - r2);
+      // 从小数到整数多乘的 10^x
+      m = Math.pow(10, Math.max(r1, r2));
+      if (c > 0) {
+          var cm = Math.pow(10, c);
+          if (r1 > r2) {
+              arg1 = Number(arg1.toString().replace(".", ""));
+              arg2 = Number(arg2.toString().replace(".", "")) * cm;
+          } else {
+              arg1 = Number(arg1.toString().replace(".", "")) * cm;
+              arg2 = Number(arg2.toString().replace(".", ""));
+          }
+      } else {
+          arg1 = Number(arg1.toString().replace(".", ""));
+          arg2 = Number(arg2.toString().replace(".", ""));
+      }
+      return (arg1 + arg2) / m;
+  }
+  ```
+
+  ```js
+  function accMul(arg1, arg2) {
+      var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
+      try {
+          m += s1.split(".")[1].length;
+      } catch (e) {}
+      try {
+          m += s2.split(".")[1].length;
+      } catch (e) {}
+      return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+  }
+  ```
+
+## ~~ 和 | 的妙用
+
+~~ 可以用作转整数
+
+```js
+~~null       // 0
+~~undefined  // 0
+~~1.8        // 0
+~~-1.8       //-1
+~~'4'        // 4
+```
+
+| 可以用作取整
+
+```js
+1.2 | 0   // 1
+-1.2 | 0  // 1
+```
+
+## 大数计算
+
+- 当数值超过 Number.MIN_SAFE_INTEGER 时会转为科学计数法表示
+- 可以使用库 [bignumber.js](https://github.com/MikeMcl/bignumber.js)
+- 简单的加法可以这样实现
+
+```js
+function addBigNumber(a, b) {
+  var res = '', tmp = 0;
+  a = a.split('');
+  b = b.split('');
+  while (a.length || b.length || temp) {
+    tmp += ~~a.pop() + ~~b.pop();
+    res = (tmp % 10) + res;
+    tmp = tmp > 9;
+  }
+  // 去除开头的 0
+  return res.replace(/^0+/, '');
+}
+```
+
+## 循环
+
+- for(let key in obj) {...}
+  - obj 是数组时，key 是下标
+  - obj 是对象时，key 是属性名
+  - 遍历对象的可枚举属性（包括从原型中继承的属性）
+- for...of...
+  - ES6
+  - 遍历任何可迭代对象
+  - 并不能直接遍历对象的属性
+    - for (let key of Object.keys(obj)) {...}
+- forEach((ele, idx) => {...})
+  - 是 Array 的一个方法
+  - ele-元素，idx-下标
+  - 不能 continue 或 break

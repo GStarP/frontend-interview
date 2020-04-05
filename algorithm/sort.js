@@ -54,7 +54,6 @@ function partition(arr, left, right) {
       right--
     }
   }
-  // pivot 真正所在位置的下一位
   return left
 }
 function quickSort(arr, left, right) {
