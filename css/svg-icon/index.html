@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>svg-icon</title>
+    </head>
+    <body>
+        <style>
+            html, body {
+                margin: 0;
+            }
+            body {
+                min-height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            body>div {
+                margin-right: 16px;
+            }
+            .svg-mask {
+                /* 浏览器可能不支持本地 file 协议, 建议使用 VsCode 的 LiveServer 插件打开 */
+                mask: url('v.svg') no-repeat 50% 50%;
+                -webkit-mask: url('v.svg') no-repeat 50% 50%;
+                mask-size: contain;
+                -webkit-mask-size: contain;
+                width: 36px;
+                height: 36px;
+                /* 可以通过 background-color 控制 svg 的颜色 */
+                background-color: skyblue;
+            }
+            .svg-background {
+                background: url('v.svg') no-repeat 50% 50%;
+                background-size: contain;
+                width: 36px;
+                height: 36px;
+            }
+        </style>
+        <div class="svg-mask"></div>
+        <div class="svg-background"></div>
+    </body>
+</html>
