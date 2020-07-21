@@ -1,57 +1,57 @@
 body {
-    margin: 0;
-    background-color: #e9e9e9;
+  margin: 0;
+  background-color: #e9e9e9;
 }
 
 body {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .container {
-    width: 100%;
+  width: 100%;
 }
 
 .unit-container {
-    width: 100%;
-    overflow: hidden;
-    padding-bottom: -100px;
-    background-color: white;
+  width: 100%;
+  overflow: hidden;
+  padding-bottom: -100px;
+  background-color: white;
 }
 
 .unit {
-    /* 不换行使得部分标签超出屏幕 */
-    white-space: nowrap;
-    /* 使得超出屏幕宽度的部分可以通过滚动查看 */
-    overflow: scroll;
-    /* 使得滚动时的滚动条不可见(优化体验) */
-    margin-bottom: -100px;
-    padding-bottom: 100px;
+  /* 不换行使得部分标签超出屏幕 */
+  white-space: nowrap;
+  /* 使得超出屏幕宽度的部分可以通过滚动查看 */
+  overflow: scroll;
+  /* 使得滚动时的滚动条不可见(优化体验) */
+  margin-bottom: -100px;
+  padding-bottom: 100px;
 
-    padding-left: 8px;
-    padding-right: 8px;
-    -webkit-overflow-scrolling: touch;
-    position: relative;
+  padding-left: 8px;
+  padding-right: 8px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 
 .unit-item {
-    display: inline-block;
-    font-size: 16px;
-    color: rgba(0, 0, 0, 0.5);
-    padding: 10px 5px 8px 5px;
-    margin: 0 8px;
+  display: inline-block;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.5);
+  padding: 10px 5px 8px 5px;
+  margin: 0 8px;
 }
 .unit-item.selected {
-    color: rgba(0, 0, 0, 0.9);
+  color: rgba(0, 0, 0, 0.9);
 }
 
 #unit-slider {
-    position: absolute;
-    height: 2px;
-    bottom: 100px;
-    background: rgba(0, 0, 0, 0.9);
-    transition: all .3s ease;
-    left: 0;
-    /* 初始值应与 .unit 与最左 .unit-item 的距离一致 */
-    transform: translateX(16px);
+  position: absolute;
+  height: 2px;
+  bottom: 100px;
+  background: rgba(0, 0, 0, 0.9);
+  transition: all .3s ease;
+  left: 0;
+  /* 初始值应与 .unit 与最左 .unit-item 的距离一致 */
+  transform: translateX(16px);
 }
