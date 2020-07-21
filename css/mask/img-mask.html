@@ -1,0 +1,68 @@
+<html>
+
+<head>
+	<title>图片遮罩</title>
+</head>
+
+<body>
+	<style>
+		html,
+		body {
+			margin: 0;
+			height: 100%;
+		}
+
+		body {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.container {
+			position: relative;
+			margin-top: 24px;
+		}
+
+		.img-mask {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+		}
+
+		.img-mask__bg {
+			position: absolute;
+			width: 100%;
+			height: 80px;
+			left: 0;
+			bottom: 0;
+			background-image: linear-gradient(0deg, rgba(0, 0, 0, .6) 0%, rgba(0, 0, 0, 0) 100%);
+		}
+
+		.img-mask__bg__text {
+			color: #FFF;
+			font-size: 16px;
+			position: absolute;
+			bottom: 8px;
+			right: 12px;
+		}
+
+		.img {
+			width: 600px;
+			height: 300px;
+		}
+	</style>
+	<img class="img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/blog/play/dota_heroes.png">
+	<div class="container">
+		<div class="img-mask">
+			<span class="img-mask__bg">
+				<span class="img-mask__bg__text">06:23</span>
+			</span>
+		</div>
+		<img class="img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/blog/play/dota_heroes.png">
+	</div>
+</body>
+
+</html>

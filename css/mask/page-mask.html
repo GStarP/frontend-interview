@@ -1,0 +1,63 @@
+<html>
+
+<head>
+  <title>页面遮罩</title>
+</head>
+
+<body>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .page-mask {
+      position: fixed;
+      z-index: 101;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #000;
+      opacity: 0;
+
+      transition: opacity 0.5s;
+    }
+
+    .page-mask-show {
+      opacity: 0.3;
+    }
+
+    .page-mask-hide {
+      opacity: 0;
+    }
+  </style>
+  <div id="mask" class="page-mask"></div>
+  <script>
+    var maskShow = false
+    function toggle() {
+      maskShow = !maskShow
+      var mask = document.getElementById('mask')
+      // 要注意: display 会破坏 transition!
+      if (maskShow) {
+        mask.style.display = 'block'
+        setTimeout(() => {
+          mask.classList.remove('page-mask-hide')
+          mask.classList.add('page-mask-show')
+        }, 0)
+      } else {
+        mask.classList.remove('page-mask-show')
+        mask.classList.add('page-mask-hide')
+        setTimeout(() => {
+          mask.style.display = 'none'
+        }, 500)
+      }
+    }
+    window.onload = function () {
+      document.body.onclick = () => toggle()
+    }
+  </script>
+</body>
+
+</html>
