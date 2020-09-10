@@ -22,16 +22,16 @@
   - 只编写业务逻辑，不关心 state 如何改变
   - 组件通过 dispatch(action) 分发 action
 
-## nextTick
+## $nextTick
 
 - 语法
 
 ```js
-Vue.nextTick(function () {
+Vue.$nextTick(function () {
     // 回调
 })
 // 2.1.0 起新增
-Vue.nextTick().then(function () {
+Vue.$nextTick().then(function () {
     // 回调
 })
 ```
