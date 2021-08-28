@@ -159,3 +159,56 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 - Flex
   - left 设置 order 为 -1 保证在最前
 
+## 变量
+
+[点击查看](./css/variable.html)
+
+- 可以定义以 “--” 为开头的变量，便于复用
+- 定义时需要声明其作用于，定义在 :root 里可以保证作用到全局
+
+## Dark Mode
+
+- 主要是为了响应苹果推出的“系统 Dark Mode”
+- Dark Mode 不是简单的“反色”，即将 rgb(a, b, c) 改为 rgb(255-a, 255-b, 255-c)，这样得到的结果惨不忍睹
+  - 特别是图片，往往不需要反色，或是反色后很阴间
+- 一种简单的解决办法是由设计定义 Dark Mode 颜色构成
+  - 本质上是“切换主题”
+- 切换主题的通用实现思路
+  - 在使用颜色时使用变量，而非字面量
+  - 切换主题时切换变量定义，即可完成颜色更换
+- 判断系统是否处于 Dark Mode
+  - 通过 `@media (prefers-color-scheme: dark/light/no-preference)`
+- 简单实现
+
+```css
+@media (prefers-color-scheme: no-preference) {
+    :root {
+        --background-color: white;
+        --text-color: black;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: black;
+        --text-color: white;
+    }
+}
+.main {
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+```
+
+- 更灵活的方式：通过在 <body> 上添加 class 来切换变量定义
+
+```css
+:root {
+	--background-color: white;
+    --text-color: black;
+}
+:root .diy {
+    --background-color: yellow;
+    --text-color: green;
+}
+```
+
