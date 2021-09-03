@@ -1,27 +1,5 @@
 # Vue 2
 
-## Vuex
-
-### 为什么不使用全局变量
-
-- Vuex 的状态是响应式的，若组件依赖的状态发生变化，组件也会更新
-- 更好的可维护性
-- 能够被 devtool 所监控
-
-### mutation 和 action
-
-- mutation
-  - 是修改 state 的唯一途径
-  - 同步执行
-  - devtool 可以跟踪 commit，监控 state 变化
-  - 只关心状态
-  - 组件通过 commit mutation 提交 mutation
-- action
-  - 通过 commit mutation 来改变 state
-  - 可以包含异步代码
-  - 只编写业务逻辑，不关心 state 如何改变
-  - 组件通过 dispatch(action) 分发 action
-
 ## $nextTick
 
 - 语法
@@ -84,17 +62,15 @@ Vue.$nextTick().then(function () {
   - 在 Vue 中，你可以更灵活地使用任意预处理器/后处理器，通过 loader 配置样式设置
     - scoped：组件会自动添加一个唯一属性（如 data-v-21e5b78），样式会被编译为 .class[data-v-21e5b78]
 
-## v-model
+# Vuex
 
-- 语法糖
+## 为什么不用全局变量
 
-```html
-<input v-model="msg">
-<!-- 等价于 -->
-<input :value="msg" @input="msg=$event.target.value">
-```
+- Vuex 的状态是响应式的，若组件依赖的状态发生变化，组件也会更新
+- 更好的可维护性
+- 能够被 devtool 所监控
 
-## Nuxt
+# Nuxt
 
 - SSR
   - 只有 beforeCreate 和 created 会在服务端渲染的过程中被调用
