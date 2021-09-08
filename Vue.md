@@ -37,7 +37,7 @@ Vue.$nextTick().then(function () {
 
 > [详解 Vue 生命周期](https://segmentfault.com/a/1190000011381906) （评论区有不同意见）
 
-<img src="./imgs/lifecycle.png" style="zoom: 33%;" />
+<img src="./imgs/Vue-生命周期.png" style="zoom: 33%;" />
 
 - beforeCreate：data 为 undefined
 - created：data 已有，无 el
