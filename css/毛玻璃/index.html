@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>svg-icon</title>
+    </head>
+    <body>
+        <style>
+            html, body {
+                margin: 0;
+            }
+            body {
+                width: 3045px;
+                height: 1600px;
+                background-image: url(./background.jpg);
+            }
+            #glass {
+                width: 600px;
+                height: 300px;
+                
+                position: fixed;
+                top: 50%;
+                margin-top: -150px;
+                left: 50%;
+                margin-left: -300px;
+                border: 1px solid #eee;
+
+                background: rgba(#FFF, 0.7);
+                backdrop-filter: blur(6px);
+                /**
+                 * 然而，FireFox 不支持 backdrop-filter
+                 * 我们可以选择在毛玻璃下叠一张背景图进行 filter: blur()，超出毛玻璃的部分 overflow: hidden
+                 * 但这只适用于只需要模糊一张背景图的简单场景，如果需要对页面上复杂的元素都能起效
+                 * 正好对于 Firefox，可以利用其强大的私有属性 moz-element() 解决
+                 * 详见[https://github.com/chokcoco/iCSS/issues/124]
+                 */
+            }
+        </style>
+        <div id="glass"></div>
+    </body>
+</html>
