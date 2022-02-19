@@ -106,3 +106,20 @@
   - `<a>`：内部链接加 title 属性说明；外部链接加 el="nofollow"，告诉爬虫不要去
   - `<strong>代替<b>` `<em>代替<i>`
   - 重要内容放到最上面，不要使用 JS 输出
+
+## 定位
+
+[点击查看](./css/locate.html)
+
+- 事件定位（Event.）
+  - screenX/Y：相对于电脑屏幕左上角
+  - pageX/Y：相对于页面内容左上角
+  - clientX/Y：相对于浏览器左上角
+  - offsetX/Y：相对于事件发生元素左上角
+- 元素定位（Element.）
+  - offsetTop/Left：相对于 **第一个 position 非 static 的父元素** 内容左上角
+  - scrollTop/Left：有 overflow=scroll 的元素向下/右滚动的距离
+  - clientTop/Left：顶部边框宽度（好像没什么用）
+  - offsetWidth/Height：自身宽高，不包括 margin；对 inline 元素，offsetHeight 为 0
+  - scrollWidth/Height：自身宽高，对 overflow=scroll 的元素，包含被滚动条隐藏的全部部分
+  - clientWidth/Height：自身宽高，不包括 margin，border，滚动条；对 inline 元素，clientHeight 为 0

@@ -24,7 +24,7 @@
 - rem
 
   - root em
-  - 相对于 html 根元素（JS 中的document.documentElement；HTML 中的 \<html\>；CSS 中的 :root）的字体大小
+  - 相对于 html 根元素（JS 中的 document.documentElement；HTML 中的 \<html\>；CSS 中的 :root）的字体大小
   - 适配设备宽度
     - 比如 750px 的设计稿，上 1000px 的设备，就将根元素字体大小设为 16 / 750 * 1000 px
   
@@ -211,3 +211,9 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 }
 ```
 
+## 垂直外边距合并
+
+- 当两个垂直方向的 margin 相邻时，他们将融合成一个 margin，取较大者
+- 具体问题：当无上边距的 body 中有且仅有一个 margin-top=20 的子元素时，body 会因此拥有 20 的上边距，被子元素拉下来
+
+- 解决：给 body 上 border-top 或 padding-top，但高度不能为 0；或者用空 div 隔开
