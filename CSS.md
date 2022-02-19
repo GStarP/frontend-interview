@@ -15,25 +15,22 @@
 - em
 
   - 1em 相当于当前元素的 font-size
-  - 如果当前 font-size 未设置，则取所有浏览器的默认，16px
+  - 如果当前 font-size 未设置，取父元素的，直到默认值 16px
   - 因此我们可以在 body 中设置 font-size: 62.5% 就能让 1px = 10em
-  - 要注意 font-size 会被继承
+  - **为什么要用**
+    - 根本原因在于把其它属性，如 margin、width 等表示为 function(font-size)
+    - 这样就可以只改一个 font-size 而实现全部内容的缩放
 
 - rem
 
   - root em
-  - 只相对于 html 根元素（document.documentElement）
-  - 对于宽度情况复杂的移动端，让 html 根元素的 font-size 与屏幕宽度对应上
-
-  ```js
-  // 100: 方便计算的自定义参数, 750: 设计稿屏幕宽度
-  document.documentElement.style.fontSize = 100 * (document.documentElement.clientWidth / 750) + 'px'
-  ```
-
+  - 相对于 html 根元素（JS 中的document.documentElement；HTML 中的 \<html\>；CSS 中的 :root）的字体大小
+  - 适配设备宽度
+    - 比如 750px 的设计稿，上 1000px 的设备，就将根元素字体大小设为 16 / 750 * 1000 px
+  
 - rpx
 
-  - 可以理解为自动计算好的 rem
-  - 直接按照设计稿的数值书写即可
+  - 自动计算好的 rem
   
 - vh/vw
 
@@ -50,14 +47,16 @@
 - flex-container 属性
   - flex-direction：主轴方向
   - flex-wrap：如何换行
-  - flex-row：上面两者的组合
+  - flex-flow：上面两者的组合
   - justify-content：主轴对齐方式
   - align-items：交叉轴对齐方式
   - align-content：内容对齐方式（同时影响在两个轴上的表现）
 - flex-item 属性
   - order：排列顺序，越小越前
-  - flex-grow：放大比例（121 就是 25%50%25%）
-  - flex-shrink：如果空间不足，该项目将缩小
+  - flex-grow：如果能比自身大，就把剩余的空间按比例分配
+    - 三个 1-2-1 的元素就是 25%-50%-25%
+    - 为 0 时保持自身宽/高度
+  - flex-shrink：同上，但是缩小
   - flex-basis：在分配多余空间之前项目占据的主轴空间
   - flex：上面三者的组合
   - align-self：可覆盖 align-items
