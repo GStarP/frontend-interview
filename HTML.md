@@ -2,29 +2,22 @@
 
 ## Inline & Block
 
-- Inline（行内/内联元素）
+- inline（行内/内联元素）
   - 和其他元素在同一行上
   - 设置 height，width，padding/margin-top/bottom 无效
   - 宽度就是其内容的宽度，不可改变
-  - 只能容纳文本或其它行内元素
   - 常见
     - a
       - 可包含除自身以外任何元素
     - button
-    - img
-    - input
     - label
     - span
-    - textarea
-    - video
     - del/em/i/strong/b
-- Block（块级元素）
+- block（块级元素）
   - 总是从新的一行开始
   - 宽度默认为其容器的 100%
   - 可以容纳行内元素和其它块级元素
   - 常见
-    - audio
-    - canvas
     - div
     - p
       - 不能包含任何块级元素，包括自身
@@ -32,43 +25,47 @@
     - table/tbody/thead/tfoot/th/tr/td
     - hr
     - h1~6
+- inline-block
+  - 和其他元素在同一行上
+  - 可以设置 height，width，padding/margin-top/bottom
 
 ## Reflow & Repaint
 
 - 它们是影响页面渲染速度的主要因素
 
-- Reflow（回流）
+- Reflow（回流/重排）
 
   - 元素的变化影响了布局，造成部分乃至整个页面的重新渲染
+    - 需要重新构建部分 Render Tree（所以页面首次加载也会首次回流）
   - 任何一个节点发生 Reflow 都会导致其子节点和祖先节点重新渲染
   - 原因
-    - 浏览器窗口大小变化
-    - 元素尺寸变化（边距，边框，宽高，display）
-    - 添加/删除样式表
-    - 内容改变（在输入框中输入）
+    - 浏览器窗口大小变化（因为需要根据浏览器窗口计算元素位置）
+    - 元素尺寸变化（内外边距，边框，宽高）
+    - 元素位置变化
+    - display 属性变化（主要是 none）
     - 激活伪类（如 :hover）
-    - 更改 class 属性
-    - 更改 style 属性
-    - JS 操作 DOM
-    - 计算 offsetWidth 和 offsetHeight
+    - 添加或删除 DOM 元素
 
 - Repaint（重绘）
 
   - 元素的变化不影响布局，只引起这个元素的重新绘制
-  - 原因：背景/文字/边框颜色改变等
+  - 原因：背景/文字/颜色等改变
 
 - 关系
 
   - 回流 必定引起 重绘；但 重绘 不一定引起 回流
   - 回流 的速度明显比 重绘 更缓慢
 
+- 浏览器优化机制
+
+  - 浏览器为了减少回流次数，会将回流先放入队列，等到一定时间或一定操作再批量执行
+  - 但是，获取布局信息（如访问 offsetTop 等[定位](##定位)属性）会强制队列执行，因为要获取最新的正确的值
+  
 - 启示
 
   - 回流是不可避免的，所以只能尽可能减小它的代价
 
-    - 需要改变元素样式时直接设置在子元素上，而非通过父级元素影响到子元素
-
-    - 将多次样式的修改统一为一步
+    - 减少回流次数：手动进行批处理
 
       - 比如需要修改 padding，margin，width 三个样式
 
@@ -77,11 +74,16 @@
       element.style.padding = '';
       element.style.margin = '';
       element.style.width = '';
-      // 可以使用以下两种方法, 只造成一次回流
+      // 使用以下两种方法, 都只会造成一次回流
       element.style.cssText += 'padding: 0; margin: 0; width: 0;';
+      
       element.className += 'hxwnb';
       ```
+      
+    - 使需要多次修改的元素（比如动画元素）脱离文档流
 
+      - 设置 display: none
+      - 设置 position: absolute/fixed
 
 ## SEO
 
@@ -104,8 +106,8 @@
   - `<meta keywords>` `<meta description>`：大致同上
   - `<nav><h1><main>`：语义化
   - `<a>`：内部链接加 title 属性说明；外部链接加 el="nofollow"，告诉爬虫不要去
-  - `<strong>代替<b>` `<em>代替<i>`
-  - 重要内容放到最上面，不要使用 JS 输出
+  - `<strong>` 代替 `<b>`，`<em>` 代替 `<i>`
+  - 重要内容放到最上面，不要使用 JS 动态输出
 
 ## 定位
 
