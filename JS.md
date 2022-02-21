@@ -3,10 +3,10 @@
 ## call & apply
 
 - 作用：改变 this 的指向，让一个对象去调用自己没有的，另一个对象的方法
-- 区别：只有 **传参** 方面不同
+- 区别：只有 **传参** 格式不同
   - call (thisObj, arg1, arg2, ...)
   - apply (thisObj, [arg1, arg2, ...])
-  - 如果没有提供任何参数，则 Global 将被用作 thisObj 且不传递任何参数
+  - 如果没有提供任何参数，则 global 将被用作 thisObj
 
 ```js
 var coder = {
@@ -26,29 +26,29 @@ coder.coding.apply(driver, ['车','14:00']);
 ## 原型
 
 ```js
+// 构造函数
 function Father() {
-    this.auth = 'father'
+    this.name = 'father'
 }
 /**
- * prototype 只有函数才有
- * 指向这个构造函数创建的实例的原型对象
+ * prototype (原型对象)
+ * 只有函数才有, 只有一个属性 constructor, 正是这个函数
+ * 可以理解为这个构造函数, 也就是这个类的原初对象
  */
-console.log(Father.prototype === Father)
+console.log(Father.prototype)  // { constructor: Father }
 /**
- * 指向原型的构造函数,这里即 Father()
- */
-console.log(Father.prototype.constructor)
-/**
- * 除 null 外都有 __proto__
- * 指向其原型的 prototype
- * Object.prototype.__proto__ 为 null
- */
-console.log(Father.prototype.__proto__)  // 指向 Object.prototype
-/**
- * 实例的 __proto__ 指向原型的 prototype
+ * __proto__ (原型)
+ * 实例的 __proto__ 指向其构造函数的 prototype
  */
 let father = new Father()
 console.log(father.__proto__ === Father.prototype)  // true
+console.log([].__proto__ === Array.prototype)       // true
+/**
+ * 除 null 外的对象都有 __proto__
+ * Object.prototype.__proto__ 为 null
+ */
+console.log(Father.prototype.__proto__)  // Object.prototype
+console.log(Array.prototype.__proto__)   // Object.prototype
 ```
 
 ## new 的时候发生了什么
@@ -72,7 +72,7 @@ let instance = new Cls()
 instance.b = 'hxwsb'
 console.log(instance)
 `
-可以看到实例的__proto__指向Cls.prototype，Cls.prototype.__proto__指向Object.prototype
+可以看到实例的 __proto__ 指向 Cls.prototype，Cls.prototype.__proto__ 指向 Object.prototype
 这就是一个 instance => Cls => Object => null 的原型链
 {
     b: 'hxwsb',
@@ -87,64 +87,9 @@ console.log(instance)
 ```
 
 - 性能
-  - 试图访问不存在的属性时将会遍历整个原型链
-  - 检查某个属性是否属于当前对象而不是它的原型链，使用从 Object.prototype 集成的 hasOwnProperty
-    - hasOwnProperty() 和 Object.keys() 是唯二不会遍历原型链的方法
-
-## \_\_proto\_\_ 和 prototype
-
-```js
-// 我们现在有两个构造函数和两个实例对象
-function Father() {
-    this.name = 'father'
-    this.hello = function() {
-        console.log(this.name)
-    }
-}
-var f = new Father()
-function Son() {
-    this.name = 'son'
-}
-Son.prototype = new Father()
-var s = new Son()
-
-// 首先,我们要记住 prototype 是函数独有的属性,指向一个对象,这个对象的 constructor 是这个函数
-Father.prototype
-/**
- * 我们暂时将其称为 FatherTemplate
- * {
- *   constructor: Father(),
- *   __proto__: Object
- * }
- */
-
-// __proto__ 是对象(除了 null)都有的属性,指向其构造函数的 prototype
-f
-/**
- * {
- *   name: 'father',
- *   hello: f(),
- *   __proto__: FatherTemplate
- * }
- */
-s
-/**
- * {
- *   name: 'son',
- *   __proto__: f
- * }
- */
-
-/**
- * 总结
- * 1.__proto__才是原型,原型链也是根据__proto__一路找上去
- * 2.因为实例的__proto__指向构造函数的 prototype
- *   所以可以把 prototype 理解为用这个构造函数创建实例时,实例所遵循的模板
- *   因此我们平时想要在某个类上添加属性都是在 Class.prototype 上添加
- * 3.但是 Son.prototype.constructor 是 Father(), 这在理解上有点障碍
- *   因此我们下面提到的寄生组合继承解决了这个问题
- */
-```
+  - 试图访问不存在的属性时将会遍历整个原型链（通过 \_\_proto\_\_）
+  - 检查某个属性是否属于当前对象而不是它的原型链，使用从 Object.prototype 继承的方法 hasOwnProperty
+    - hasOwnProperty() 和 Object.keys() 是 **唯二** 不会遍历原型链的方法
 
 ## 继承
 
@@ -163,16 +108,19 @@ function Son() {}
 Son.prototype = new Father()
 let son = new Son()
 son.work()
-son.friends.push('Jack')
+son.friends.push('Jack')   // 这里实际上是修改了 Father 的 friends
 let son2 = new Son()
-console.log(son.friends)
+console.log(son2.friends)  // 所以 son2 的 friends 也被修改了
+// 子类实例能被检查出继承父类
+console.log(son instanceof Father)  // true
+console.log(Father.prototype.isPrototypeOf(son))  // true
 ```
 
 - 优点
-  - 能通过 instanceOf 和 isPropertyOf 的检查
+  - 能通过 instanceOf 和 isPrototypeOf 的检查
 - 缺点
   - 不能给父类构造函数传参
-  - Father 的数组类型被 son 所更改会影响到 son2（但 son 修改 name 不会影响到 son2）
+  - Father 的数组被 son 更改会影响到 son2
 
 ### 构造函数
 
@@ -192,20 +140,24 @@ console.log(son2.friends)
 ```
 
 - 优点
-  - 能够自行调用父类构造函数，可以传参
+  - 能够调用父类构造函数，可以传参
   - son 无论如何不会影响到 son2
 - 缺点
-  - 不能通过 instanceOf 和 isPropertyOf 的检查，相当于只是属性和方法的挂载
+  - 不能通过 instanceOf 和 isPrototypeOf 的检查，只是把父类的属性和方法在子类挂载一遍
+  - 由于和原型链无关，所有属性和方法都必须在构造函数中定义
 
-### 组合
+### 构造函数 + 原型
 
 ```js
 // 在构造函数继承的基础上加上下面一句
 Son.prototype = new Father()
 ```
 
-- 组合 原型链 + 构造函数
-- 两次调用，浪费内存
+- 优点
+  - 组合 原型链 + 构造函数，通过在子类构造函数中复制一份父类属性，避免回溯到父类上产生的重复问题
+- 缺点
+  - 调用了两次父类构造函数
+  - 子类的原型对象是父类实例，而子类实例也有这些属性，所以这些属性是被屏蔽的，浪费空间
 
 ### 寄生
 
@@ -229,9 +181,12 @@ let son2 = new Son(new Father('Bob'))
 console.log(son2.friends)
 ```
 
-- son 不会影响到 son2
+- 优点
+  - son 不会影响到 son2
+- 缺点
+  - son instanceof Son 无法通过，因为 Son 构造函数本质上返回了一个 Father，即 son.\_\_proto\_\_ 是 Father.prototype
 
-### 寄生组合继承
+### 构造函数 + 寄生
 
 ```js
 function Father(name) {
@@ -245,7 +200,7 @@ function Son(name, age) {
     Father.call(this, name)
     this.age = age
 }
-// 关键！
+// 拷贝父类的原初对象, 把他的 constructor 变成子类构造函数, 作为子类的原初对象
 function inherit(Sub, Sup) {
     let s = Object(Sup.prototype)
     s.constructor = Sub
@@ -259,7 +214,9 @@ let son2 = new Son('Rita', 20)
 console.log(son2.friends)
 ```
 
-- 最佳选择
+- 优点
+  - 在设定原型链这一环节，解决了“构造函数+原型”模式的缺点
+  - 子类的原型对象是父类的原型对象的拷贝，更加符合语言设计，不会产生无用的实例属性
 
 ## 作用域链
 
