@@ -229,15 +229,133 @@ console.log(son2.friends)
 - 作用域链的启发
   - 如果需要多次调用全局作用域的变量，最好先将其存储到局部作用域中，避免多次查找直到最后的全局作用域
 
+## 变量提升
+
+在 JS 引擎词法分析阶段发生，把所有变量的声明提到作用域顶端而不赋值
+
+```js
+console.log(a)
+var a = 1
+// 变量提升
+var a
+console.log(a)  // undefined
+a = 1
+
+foo()
+var foo = function() { console.log(1) }
+// 函数表达式提升
+var foo
+foo()  // 报错: foo is not a function
+foo = function() { console.log(1) }
+
+foo()
+function foo() { console.log(1) }
+// 函数声明提升
+var foo
+foo = function() { console.log(1) }
+foo()  // 1
+```
+
+```js
+// 典型例题
+console.log(v1)
+var v1 = 100
+function foo() {
+  console.log(v1)
+  var v1 = 200
+  console.log(v1)
+}
+foo()
+console.log(v1)
+// 变量提升后
+var v
+var foo
+foo = function() {
+    var v
+    console.log(v)
+    v = 200
+    console.log(v)
+}
+console.log(v)
+v = 100
+foo()
+console.log(v)
+// undefined undefined 200 100
+```
+
+## 函数声明和函数表达式
+
+```js
+/* 函数声明 */
+// 立即执行必须用 () 包裹
+(function f1() {
+    console.log('f1')
+})()
+```
+
+```js
+/* 函数表达式 */
+// 立即执行直接加 () 即可
+var f2 = function() {
+  console.log('f2')
+}()
+// 函数命名只能在内部使用
+var f3 = function func() {
+  console.log(typeof func)
+}
+f3()    // function
+func()  // 报错!
+```
+
+## var 和 let/const
+
+在 [作用域链](##作用域链) 中我们提到，JS 的作用域只有全局和函数两种，不存在块级作用域，这一点在循环中表现得异常明显
+
+```js
+i = 5
+console.log(i)
+for (var i = 0; i < 3; i++) {
+    console.log(i)
+}
+// 5 0 1 2
+```
+
+循环外部居然可以访问循环里定义的变量，太离谱了，这也经常导致一些问题（参见 [闭包](##闭包)-缺点-循环闭包）。于是，ES6 提供了 let/const
+
+- let/const 用于声明块级作用域变量，只在 {} 内有效
+- let/const 会造成暂时性死区：当前块作用域被封闭，在声明之前使用全报 ReferenceError（哪怕有全局同名变量也不会顺着作用域链查找）
+- 在同一作用域内，不能使用 let/const 反复定义同名变量（let-let，var-let，let-var 都不可以）
+
 ## 闭包
 
-> [MDN 闭包](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)
+> [MDN - 闭包](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)
 
 - 定义
 
-  - 闭包由函数以及声明该函数的词法环境（可以理解为闭包中定义的变量）构成的
-  - 闭包让你可以从函数内部访问外部函数作用域
-  - 每当函数被创建，就会在函数生成时生成闭包
+  - 闭包由 函数定义 以及 定义它的词法环境 组成
+  - 每当定义一个函数，就会生成一个闭包
+
+- 词法环境
+
+  - 词法环境包含了定义函数的作用域内的所有局部变量
+  - 这个函数不销毁，它所依赖的词法环境就不销毁
+  - 我们认为函数运行完后，定义在其内的局部变量就会被销毁；但闭包提供了一种将其保持的方法，那就是返回一个依赖函数内部变量的子函数，子函数和函数内部变量构成了一个闭包，函数本质上创建并返回的是这个闭包
+
+  ```js
+  function makeAdder(x) {
+    // x 是 makeAdder 的内部变量, 一般来说在 makeAdder 运行完后就会销毁
+    return function(y) {
+      // 但返回的子函数依赖了 x, 与其构成了闭包
+      return x + y;
+    };
+  }
+  // add1 和 add5 都是闭包, 共享函数定义, 但有不同的词法环境 (x值不同)
+  var add1 = makeAdder(1);
+  var add5 = makeAdder(5);
+  // 只要 add1 和 add5 不被销毁, 他们的词法环境就不会被销毁
+  console.log(add1(2));  // 3
+  console.log(add5(2));  // 7
+  ```
 
 - 作用
 
@@ -255,64 +373,51 @@ console.log(son2.friends)
   
   var c1 = makeCounter();
   c1.privateCounter  // undefined (起到了私有变量的功能)
-  c1.value()         // 0 (只能通过提供的共有函数访问)
-  ```
-
-  - 将变量保存在内存中，不会被垃圾回收机制回收
-    - 这里应该也可以谈函数柯里化
-
-  ```js
-  function f1() {
-    var n = 999
-    function f2() {
-      console.log(n)
-    }
-    return f2;
-  }
-  var print = f1()
-  print()
-  // 调用完 print 后, 由于 print 是全局变量, 因此 print 代表的 f2在内存中
-  // 而又因为 f2 依赖 f1, 所以 f1 也被保持在内存中
+  c1.value()         // 0 (只能通过提供的公共方法访问)
   ```
 
 - 缺点
 
-  - 在处理速度和内存消耗方面有负面影响
+  - 循环闭包
 
   ```js
-  function MyObject(name) {
-    this.name = name
-    this.getName = function() {
-      return this.name;
+  function blinkAllEl() {
+    for (var i = 0; i < els.length; i++) {
+      // var 导致 el 被定义在函数作用域, 而非每次循环的块作用域
+      var el = els[i];
+      document.getElementById(el.id).onclick = function() {
+        // 因此所有闭包共享同一个词法环境(函数作用域), 其中 el 的值为最后一个 el
+        blink(el);
+      }
     }
   }
-  // 上面的写法会导致每次创建新的 MyObject, getName 函数都会被重新创建
-  // 所以应该改成这样
-  function MyObject(name) {
-    this.name = name
+  
+  // 解决方案一: 再加一层闭包
+   document.getElementById(el.id).onclick = blinkEl(el)
+  function blinkEl(el) {
+      // 每次循环的 el 在这里被保持
+      return function() {
+          blink(el)
+      }
   }
-  MyObject.prototype.getName = function() {
-    return this.name
-  }
+  
+  // 解决方案二: 使用 let 把 el 定义在每次循环的块作用域
+  let el = els[i];
   ```
 
-  - 内存泄漏
+  - 内存泄漏：[有争议](https://www.zhihu.com/question/22806887)
+    - IE 低版本使用不同的内存管理器管理 JS 对象和 DOM 对象，如果他们之间存在循环依赖，IE 就无法释放任何一个对象
 
   ```js
-  function Car() {
-    this.color = ["white", "black"]
+  function (element, a){
+      // element 依赖这个匿名函数, 这个匿名函数被维持
+  	element.onclick = function(){
+          // 只使用了 a, 但词法环境导致 element 也被维持
+          /* 这里有个问题: 上面的词法环境实现是"不管是否使用, 变量统统保存", 而先进的实现是否如此并不知道 */
+  		console.log(a)
+  	}
   }
-  Car.prototype.getColor = function() {
-    var outerColor = this.color  // 保存一个副本到变量中
-    return function() {
-      return outerColor  // 应用这个副本
-    }
-    outerColor = null    // 用完之后要记得释放内存
-  }
-  var car = new Car()
-  console.log(car.getColor()())
   ```
-
 
 ## bind
 
@@ -385,7 +490,7 @@ cuad(1)(2)()
 
 ## this
 
-- 本质：this 总是指向调用该函数的对象！
+- 本质：**this 总是指向调用该函数的对象！**
 - 在浏览器中，如果我们不指定，直接调用函数，调用函数的对象其实就是 window
   - 在严格模式下，this 不会指向 window 而是 undefined
 
@@ -624,42 +729,6 @@ f2()  // o2
     - 推入一个执行 f 的任务【405】
     - 已经有了一个执行 f 的任务，跳过【605】
   - 开始执行 405ms 时的 f【650-?】
-
-
-## 函数声明和函数表达式
-
-```js
-/* 函数声明 */
-// 可以在定义前调用
-f1()
-function f1() {
-	console.log('f1')
-}
-// 立即执行必须用 () 包裹
-(function f2() {
-    console.log('f2')
-})()
-```
-
-```js
-/* 函数表达式 */
-// 报错!不能在定义前调用
-f1()  
-var f1 = function() {
-    console.log('f1')
-}
-f1()  // f1
-// 立即执行直接加 () 即可
-var f2 = function() {
-    console.log('f2')
-}()
-// 函数命名只能在内部使用
-var f3 = function func() {
-    console.log(typeof func)
-}
-f3()    // function
-func()  // 报错!
-```
 
 ## CommonJS 和 ES6 Module
 
