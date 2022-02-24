@@ -225,7 +225,7 @@ console.log(son2.friends)
   - 下级作用域可以调用上级作用域的变量，反之则不行
 - 作用域链
   - 调用变量时，如果在当前的作用域没有查到，就沿着作用域链向上查找，直到全局作用域
-  - 更深的解读参见 https://www.cnblogs.com/lhb25/archive/2011/09/06/javascript-scope-chain.html
+  - 具体原理参见 [理解 JavaScript 作用域和作用域链](https://www.cnblogs.com/lhb25/archive/2011/09/06/javascript-scope-chain.html)
 - 作用域链的启发
   - 如果需要多次调用全局作用域的变量，最好先将其存储到局部作用域中，避免多次查找直到最后的全局作用域
 
@@ -552,175 +552,134 @@ var f = new F()
 console.log(f.name)  // undefined: this 指向的是返回的 {}
 ```
 
-## 任务队列
+## JS 引擎单线程
 
-> [Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly?_blank)
->
+> [JavaScript 运行机制详解：再谈Event Loop](https://www.ruanyifeng.com/blog/2014/10/event-loop.html)
+
+### 简单理解
+
+- 为什么不是多线程
+  - 为了简单
+  - JS 最初的用途是浏览器脚本语言，不需要支撑复杂的多线程场景
+- 同步异步
+  - 单线程意味着任务顺序执行
+  - I/O 很慢（比如 Ajax 请求数据），如果 CPU 要等待结果就会阻塞后面的任务，于是，任务被分成两种
+  - 同步任务
+    - 在主线程上执行，形成一个执行栈（类似调用栈）
+  - 异步任务
+    - 异步任务有了结果，或是事件触发，就会在“任务队列”中放置一个任务
+    - 当执行栈空（主线程空闲）的时候，主线程就会去任务队列中读取任务执行
+  - 定时任务
+    - setTimeout 和 setInterval
+    - 依然要等待主线程空闲，因此可能会有时间上的误差
+    - HTML5 标准规定时间间隔不得低于 4ms
+
+### 事件循环
+
+以上就是对 Event Loop 的简单理解，下面让我们更具体一些
+
+#### 浏览器
+
 > [对于 JS 任务队列的理解](https://segmentfault.com/a/1190000016295324)
 
-- 任务队列的分类
-  - 宏任务
-    - 整体代码
-    - setTimeout
-    - setInterval
-    - setImmidiate
-    - I/O
-    - UI 渲染
-  - 微任务
-    - process.nextTick
-    - Promise
-    - Object.observer
-  - 宏任务队列可以有多个，微任务队列只有一个
-  - 优先级
-    - 宏任务 > 微任务
-    - setTimeout > setImmidiate
-    - process.nextTick > Promise.then
-- 执行机制
-  - 按照顺序将同步任务依次放入执行栈中执行
-  - 期间产生的异步任务被加入两种任务队列
-  - 事件循环
-    - 执行栈空后，从微任务队列出队一个任务到执行栈，直到微任务队列空
-      - 如果中途又产生微任务，立即入队，并在此次循环中都执行完
-    - UI 线程接管，做渲染
-    - JS 线程接管，从宏任务队列出队一个任务到执行栈
-    - 重复事件循环
+- 任务队列并不只是简单的一个队列，而是分为微任务队列和宏任务队列
+- 宏任务（Task）
+  - 基础代码
+  - setTimeout / setInterval
+- 微任务（Job）
+  - Promise.then
+  - MutationObserver
+- 执行过程
+  - 基础代码 进入宏任务队列
+  - 出队一个宏任务，进入执行栈执行（执行产生的宏任务和微任务进入各自队列）
+  - 这个宏任务执行完后，执行栈为空，出队所有微任务，进入执行栈执行
+    - **微任务产生的微任务也将继续在这个循环中被出队执行**
+  - 如果有，出队下一个宏任务，循环
+- 有一个易于理解的可视化实例：[Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly?_blank)
 
-## 从浏览器多线程到 JS 单线程
+#### Node.js
+
+- V8 引擎解析 JS 代码，调用 Node API
+- libuv 库负责执行 Node API，管理事件循环，将异步任务的结果返回给 V8
+  - 较为复杂，具体参见 [详解JavaScript中的Event Loop（事件循环）机制](https://zhuanlan.zhihu.com/p/33058983)
+- Node.js 提供了两个全新的任务
+  - process.nextTick()：会在新一轮循环开始前执行
+  - setImmediate()：在同一个 I/O 的回调中，一定先于定时器执行
+
+## 浏览器多进程
 
 > [从浏览器多线程到 JS 单线程](http://www.dailichun.com/2018/01/21/js_singlethread_eventloop.html)
 
-- 进程：CPU 资源分配的最小单位
-- 线程：CPU 调度的最小单位
-- 单/多线程：都是指一个进程中
+### 多进程
 
-### 浏览器
-
-  - **多进程**：每个 Tab 都是一个单独的进程
-    - 浏览器也有优化机制，tab 和进程有时也并非一对一
-    - 比如多个空白标签页会被合并成一个
-  - 有哪些进程
+  - 多进程：每个 Tab 都是一个单独的进程
+    - Tab 和进程有时也并非一对一（比如多个空白标签页会被合并成一个）
+  - 进程分类
     - 主进程
+      - 只有一个
       - 负责浏览器界面显示，与用户交互（前进，后退等）
-      - 负责各个页面的管理
-      - 将 Renderer 进程得到的内存中的 Bitmap 绘制到用户界面上
+      - 负责各个页面（其它进程）的管理
+      - 将渲染进程得到的 Bitmap 绘制到用户界面上
       - 网络资源的下载管理
-    - Renderer 进程（浏览器内核）
+    - 渲染进程（浏览器内核进程）
       - 默认每个 Tab 一个
       - 页面渲染，脚本执行，事件处理等
     - GPU 进程
       - 最多一个，用于 3D 绘制
     - 第三方插件进程
-      - 每类插件对应一个，使用时才会创建
   - 浏览器多进程的优势
     - 避免单个 Tab 或插件崩溃影响整个浏览器
     - 充分利用多核优势
-    - 方便使用沙盒模型隔离插件等进程，提高浏览器稳定性
+    - 方便隔离插件等进程，提高浏览器稳定性
 
-#### 浏览器内核
+### 浏览器内核
 
-- 是 **多线程** 的
+#### 多线程
+
 - GUI 渲染线程
-  - 负责渲染界面，生成 DOM 和 RenderObject 树，布局和绘制
-  - 当界面需要重绘和回流时，该线程执行
-  - 与 JS 引擎线程互斥！JS 引擎执行时 GUI 进程就被挂起！
+  - 负责解析 HTML+CSS，生成 Render 树，布局绘制，渲染界面
+  - 重绘，回流
+  - 与 JS 引擎线程互斥！JS 引擎执行时就被挂起！
 - JS 引擎线程
-  - 也称 JS 内核（如 V8 引擎）
-  - 一直等待任务队列中的任务到来然后处理
+  - 负责解析运行 JS 代码
   - 一个 Tab 无论何时都只有一个 JS 线程在运行 JS
 - 事件触发线程
-  - 归属于浏览器，用来控制事件循环
-  - 创建异步任务时将任务添加到事件线程中
-  - 当对应的事件符合触发条件时，该线程将事件添加到待处理队列的队尾，等待 JS 引擎的处理
-- 定时触发器线程
-  - setTimeout 和 setInterval
-  - 计时完毕后将任务添加到事件队列中
-  - W3C 标准规定低于 4ms 的时间间隔算作 4ms
+  - 负责控制事件循环
+  - JS 引擎执行异步代码时，会将其添加到此线程中
+  - 每当异步任务有了结果，将任务添加到任务队列中（结合 [事件循环](####事件循环)）
+- 定时触发线程
+  - 负责 setTimeout 和 setInterval
+  - 计时完毕，将任务添加到任务队列中
 - 异步 HTTP 请求线程
   - XMLHttpRequest 在连接后新开一个线程进行请求
-  - 检测到状态变更时，如果有回调，就产生状态变更事件，将回调放入事件队列中
+  - 检测到状态变更时，将回调添加到任务队列中
 
-#### WebWorker
-- 创建 Worker 时，JS 引擎向主进程申请开一个子线程（完全受主进程控制且不能操作 DOM）
-- JS 线程与 Worker 线程间通过 postMessage API 通信
-- 只属于某个 Tab，不与其他 Renderer 进程共享
+### 浏览器内核渲染流程
 
-#### ShareWorker
-- 所有 Tab 共享
-- 浏览器为其单独创建一个进程
+- 渲染进程从主进程得到资源后
+- 解析 HTML 成 DOM 树，期间可能发生
+  - 请求主进程下载网络资源
+  - 执行 JS 代码阻塞 DOM 树形成（所以最好把 script 放在尾部）
+- 解析 CSS 成 CSSOM 树，结合 DOM 形成 Render 树
+  - 解析 CSS 不会阻塞 解析 HTML，但会阻塞 Render 树形成（所以最好把 style 放在头部）
+- 计算布局和尺寸（Reflow）
+- 绘制（Paint）
+- GPU 进行各层合并（Composite）
 
-#### 主控进程与内核通信
+#### onload 和 DOMContentLoaded
 
-- 主控进程收到请求，首先通过网络下载页面所需资源，随后将该任务传给Renderer 进程
-- Renderer 进程接收到消息，简单解释后交给渲染线程，期间可能会发生
-  - 要求主控进程获取资源
-  - 需要 GPU 进程协助渲染
-  - JS 进程操作 DOM 引起重绘和回流
-- 最后 Renderer 进程将结果传给主控进程，主控进程绘制
-
-#### 浏览器内核渲染流程
-
-- Renderer 进程从主进程得到资源后
-- 解析 HTML 成 DOM 树
-- 解析 CSS 成 Style 树，结合 DOM 形成 Render 树
-- 布局，计算各元素尺寸和位置
-- 绘制
-- 渲染层合并
-
-#### load 和 DOMContentLoaded
-
-- 上个渲染流程走完后，触发 load 事件
+- 渲染流程完全结束后，触发 onload 事件
 - 而 DOMContentLoaded 仅当 DOM 加载完成时触发（不包括样式，图片等）
 
-#### 普通图层和复合图层
+### WebWorker
 
-> 详细请看 [浏览器渲染流程 & Composite](https://segmentfault.com/a/1190000014520786)
+- 创建 Worker 时，JS 引擎向主进程申请开一个子线程（完全受主进程控制且不能操作 DOM）
+- JS 线程与 Worker 线程间通过 postMessage API 通信
+- 只属于某个 Tab，不与其他渲染进程共享
 
-- 浏览器渲染的图层分为这两大类
-- 普通的文档流是一个复合图层（默认复合层）
-  - absolute 或 fixed 虽然脱离普通文档流，依然属于默认复合层
-- 可以通过硬件加速的方法声明一个新的复合图层
-  - 会单独分配资源
-  - 脱离普通文档流，不会造成默认复合层的回流重绘
-- GPU 中，各个复合图层是单独绘制的
-  - 但也不要大量使用，否则资源消耗过度，页面也会很卡
-- 如何声明复合图层（可以用 More Tools-Rendering-Layer borders 检验）
-  - translate3d，translateZ
-  - transform/opacity 动画：只有动画执行中才创建，动画结束后元素回到原来状态
-  - `<video><iframe><canvas><webgl>`
-  - 有一个包含复合层的子节点
-  - 有一个 z-index 较低（相当于在该元素的下层）且包含一个复合层的兄弟节点
-- 如何利用复合层做性能优化（硬件加速）
-  - 减少动画元素对其他元素的影响，将动画效果中的元素提升为复合层，减少 paint
-    - 将 will-change 设置为 opacity/transform/top/left/bottom/right
-  - 使用 transform 或 opacity 来实现动画，这样只需要做复合层的合并而不会影响普通文档流
-  - 对于固定不变的区域，如固定 header，可以将其提升以防页面某个区域重绘时其也被重绘
-- 可能遇到的问题
-  - 由于 "如何声明复合图层" 的后两点造成大量不需要被提升的元素被提升为复合层，出现层爆炸现象
-  - 解决办法：手动添加 z-index，人为干预复合层的创建
-
-### JS 引擎
-
-- 单线程
-- 任务分为同步任务和异步任务
-  - 同步任务都在主线程上执行，形成一个 **执行栈**
-  - 事件触发线程管理一个 **任务队列**，只要异步任务有了运行结果就在任务队列中放置一个事件
-  - 一旦执行栈空，就会读取任务队列，将异步任务添加到执行栈中执行
-
-## setTimout & setInterval
-
-- setTimeout
-  - 声明 200ms 后函数 f 将要执行【0-0】
-  - 后续主线程执行了 220ms【0-220】
-  - 开始执行 f【220-?】
-- setInterval
-  - 声明前主线程执行了 5ms【0-5】
-  - 声明每隔 200ms 执行一次函数 f【5-5】
-  - 后续主线程执行了 295 ms【5-300】
-    - 推入一个执行 f 的任务【205】
-  - 开始执行 f【300-650】
-    - 推入一个执行 f 的任务【405】
-    - 已经有了一个执行 f 的任务，跳过【605】
-  - 开始执行 405ms 时的 f【650-?】
+#### SharedWorker
+- 所有 Tab 共享
+- 浏览器为其单独创建一个进程
 
 ## CommonJS 和 ES6 Module
 

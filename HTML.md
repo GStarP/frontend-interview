@@ -125,3 +125,30 @@
   - offsetWidth/Height：自身宽高，不包括 margin；对 inline 元素，offsetHeight 为 0
   - scrollWidth/Height：自身宽高，对 overflow=scroll 的元素，包含被滚动条隐藏的全部部分
   - clientWidth/Height：自身宽高，不包括 margin，border，滚动条；对 inline 元素，clientHeight 为 0
+
+## 普通图层和复合图层
+
+> 详细请看 [浏览器渲染流程 & Composite](https://segmentfault.com/a/1190000014520786)
+
+- 浏览器渲染的图层分为这两大类
+- 普通的文档流是一个复合图层（默认复合层）
+  - absolute 或 fixed 虽然脱离普通文档流，依然属于默认复合层
+- 可以通过硬件加速的方法声明一个新的复合图层
+  - 会单独分配资源
+  - 脱离普通文档流，不会造成默认复合层的回流重绘
+- GPU 中，各个复合图层是单独绘制的
+  - 但也不要大量使用，否则资源消耗过度，页面也会很卡
+- 如何声明复合图层（可以用 More Tools-Rendering-Layer borders 检验）
+  - translate3d，translateZ
+  - transform/opacity 动画：只有动画执行中才创建，动画结束后元素回到原来状态
+  - `<video><iframe><canvas><webgl>`
+  - 有一个包含复合层的子节点
+  - 有一个 z-index 较低（相当于在该元素的下层）且包含一个复合层的兄弟节点
+- 如何利用复合层做性能优化（硬件加速）
+  - 减少动画元素对其他元素的影响，将动画效果中的元素提升为复合层，减少 paint
+    - 将 will-change 设置为 opacity/transform/top/left/bottom/right
+  - 使用 transform 或 opacity 来实现动画，这样只需要做复合层的合并而不会影响普通文档流
+  - 对于固定不变的区域，如固定 header，可以将其提升以防页面某个区域重绘时其也被重绘
+- 可能遇到的问题
+  - 由于 "如何声明复合图层" 的后两点造成大量不需要被提升的元素被提升为复合层，出现层爆炸现象
+  - 解决办法：手动添加 z-index，人为干预复合层的创建
