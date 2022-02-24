@@ -419,63 +419,86 @@ for (var i = 0; i < 3; i++) {
   }
   ```
 
-## bind
-
-- function.bind(obj, arg1, ...)
-  - 将 obj 作为函数的 this
-  - 将后续参数传入
-  - 返回一个函数
-
-```js
-function func(age) {
-    console.log(this.name)
-    console.log(age)
-}
-const obj = {
-    name: 'hxwnb'
-}
-func(1)
-func.bind(obj, 3)()
-```
-
-- 实现 bind
-
-```js
-Function.prototype.bind = function(ctx) {
-    let self = this
-    // 去除第一个,将剩下的参数转化为数组
-    let innerArgs = Array.prototype.slice.call(arguments, 1)
-    return function() {
-        // 向 bind 返回的函数中传递的参数
-        let otherArgs = Array.prototype.slice.call(arguments)
-        let args = innerArgs.concat(otherArgs)
-        return self.apply(ctx, args)
-    }
-}
-```
-
 ## 函数柯里化
 
+- 把 N 个参数的函数变换成“接收 1 个参数，返回接收 N-1 个参数的函数，的函数”
+
+- 目的
+
+  - 参数复用
+
+  ```json
+  function regexCheck(reg, txt) {
+      return reg.test(txt)
+  }
+  check(/\d+/g, '123')
+  
+  function curryingRegexCheck(reg) {
+      return function(txt) {
+          return reg.test(txt)
+      }
+  }
+  
+  var hasNumber = curryingRegexCheck(/\d+/g)
+  ```
+
+  - 延迟执行：Function.bind 就是通过柯里化实现的
+
+  ```js
+  Function.prototype.bind = function(context) {
+      let self = this
+      let preArgs = Array.prototype.slice.call(arguments, 1)
+      return function() {
+          let newArgs = Array.prototype.slice.call(arguments)
+          let args = preArgs.concat(newArgs)
+          return self.apply(context, args)
+      }
+  }
+  ```
+
+- 通用方法
+
 ```js
-// TODO: 有点问题
-let curry = function(fn, args) {
+const curry = function(fn) {
     let self = this
     let argNum = fn.length
-    let innerArgs = args || []
+    let preArgs = Array.prototype.slice.call(arguments, 1)
     
     return function() {
-        let _args = Array.prototype.slice.call(arguments)
-        innerArgs = innerArgs.concat(_args)
-        if (innerArgs.length >= argNum) {
-            return fn.apply(this, innerArgs)
-        } else {
-            return curry.apply(self, fn, innerArgs)
+        let newArgs = Array.prototype.slice.call(arguments)
+        let _args = preArgs.concat(newArgs)
+        // 参数数量不足, 继续接收
+        if (_args.length < argNum) {
+            return curry.apply(self, [fn, ..._args])
         }
+        // 参数收集完毕, 执行函数
+        return fn.apply(this, _args)
     }
 }
 function add(x, y) { return x+y }
-let cuad = curry(add)
-cuad(1)(2)()
+const curryAdd = curry(add)
+const add1 = curryAdd(1)
+add1(4)
+```
+
+## bind
+
+- Function.bind(obj, arg1, ...): Function
+  - 将 obj 作为函数的 this
+  - 将后续参数传入
+
+```js
+const wyx = {
+    name: 'wyx',
+    dance: function(times) {
+        console.log(`${this.name} dance ${times} times`)
+    }
+}
+const hxw = {
+    name: 'hxw'
+}
+wyx.dance(1)
+wyx.dance.bind(hxw, 3)()
 ```
 
 ## 箭头函数
@@ -486,7 +509,6 @@ cuad(1)(2)()
 - 不使用执行时而是定义时的上下文环境作为 this
 - 通过 call/apply 时只传入参数，对 this 没有影响
 - 没有 prototype
-- 不能当做 generator 函数，不能使用 yield
 
 ## this
 
@@ -499,10 +521,9 @@ function f() {
     var name = "func"
     console.log(this.name)
 }
-f()                  // undefined: 因为 window 对象里并没有定义 name 属性
-window.f()           // 等价于上一行
-var name = "window"
-f()                  // window: 打印出 window.name
+f()                  // undefined: 等价于 window.f(), 而 window 对象里并没有定义 name
+var name = "win"
+f()                  // win: 打印 window.name
 ```
 
 - this 只会指向最近调用它的对象，而不会像原型链一样向上查找
@@ -519,7 +540,7 @@ var a = {
 a.b.f()  // undefined: 因为 b.x 未定义, 并不会去找到 a.x
 ```
 
-- new 关键字会将 this 指向创建的实例对象（原理见 [new 的时候发生了什么](##new 的时候发生了什么)）
+- new 关键字会将构造函数的 this 指向实例对象（详见 [new 的时候发生了什么](##new 的时候发生了什么)）
   - 但如果函数返回的是一个对象，则 this 指向这个返回的对象
 
 ```js
@@ -529,35 +550,6 @@ function F() {
 }
 var f = new F()
 console.log(f.name)  // undefined: this 指向的是返回的 {}
-```
-
-- apply，call，bind 会改变 this 指向
-- 箭头函数也会改变 this 指向
-
-```js
-var o1 = {
-    name: 'o1',
-    f() {
-        return function () {
-            console.log(this.name)
-        }
-    }
-}
-var f1 = o1.f()
-f1()  // undefined
-var name = 'window'
-f1()  //window
-
-var o2 = {
-    name: 'o2',
-    f() {
-        return () => {
-            console.log(this.name)
-        }
-    }
-}
-var f2 = o2.f()
-f2()  // o2
 ```
 
 ## 任务队列
