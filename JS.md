@@ -831,16 +831,15 @@ function addBigNumber(a, b) {
 
 ## 循环
 
-- for(let key in obj) {...}
-  - obj 是数组时，key 是下标
-  - obj 是对象时，key 是属性名
-  - 遍历对象的可枚举属性（包括从原型中继承的属性）
+- for...in...
+  - obj 是数组时，遍历下标（且是字符型）
+  - obj 是对象时，遍历属性
+    - 遍历对象的可枚举属性（包括从原型中继承的属性）
 - for...of...
   - ES6
-  - 遍历任何可迭代对象
-  - 并不能直接遍历对象的属性
+  - 遍历可迭代对象（如遍历数组元素）
+  - 不能直接遍历对象的属性
     - for (let key of Object.keys(obj)) {...}
 - forEach((ele, idx) => {...})
-  - 是 Array 的一个方法
-  - ele-元素，idx-下标
-  - 不能 continue 或 break
+  - Array.prototype 的一个方法
+  - 不能 break 或 return
