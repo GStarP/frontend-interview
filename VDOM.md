@@ -2,51 +2,45 @@
 
 ## 为什么需要
 
-- 常规渲染流程
-  - HTML $\rightarrow$ DOM
-  - CSS $\rightarrow$ Style Rules
-  - DOM + Style Rules $\rightarrow$ Render 树
-    - Dom 节点的 attach() 接收样式返回 render 对象
-  - 计算布局（节点坐标）
-  - 调用节点的 paint() 将其绘制
-- 为什么 DOM 操作代价大
-  - 因为每次 DOM 更新都要把上边的步骤全部走一遍
-- 效率方面：**有待确认**
-  - 虚拟 DOM 是纯粹的 JS 对象，操作起来相比 DOM 节点更加高效
-  - 虚拟 DOM 能把多次频繁的更新都只现在 VDOM 上做，最后再一起 patch 到 DOM 上
+- **错误思想**
+  - 操作 VDOM 比操作 DOM 效率更高
+    - 使用 VDOM 最后依然要操作 DOM，并不能避免这部分的代价
+    - 但 VDOM 可以通过算法自动减少这部分的代价
+    - 不过通过手工优化同样可以做到，而且更适配具体场景、更快
 - Evan You
   - 对于结构简单的 DOM，手工优化当然能够比 VDOM 效率更高；但是对于结构复杂，体量庞大的 DOM，手工优化代价大，可维护性差；因此，VDOM 其实是普适性的，在效率、可维护性之间达成了一个较好的平衡
+    - 开发者不需要关注如何更新 DOM，只要关注数据逻辑层面
   - VDOM 掩盖了底层的 DOM 操作，提高了抽象化程度，使得声明式的开发成为可能，代码维护更加容易
   - 最大的好处是 **解耦 HTML 依赖**，可以渲染到 DOM 以外的平台（如 SSR，Weex）
-  - 自己理解的一点
-    - 不使用 VDOM 的话，数据变更时更新 DOM 的方法就是直接替换整个 innerHTML，这在变更的数据量很大时是可以接受的；但是，如果只有少量的数据需要更改，将整个 innerHTML 都替换而导致大量未变更 DOM 节点的重新创建显然是代价极大的
-    - 重绘性能消耗如下
-      - innerHTML：render innerHTML: O(template size) + 重新创建 **所有** DOM 元素: O(DOM size)
-      - VDOM：render VDOM + diff: O(template size) + 必要的 DOM 更新: O(DOM change)
 
 ## Diff 算法
 
-- 只在同层级之间进行比较
-- 如下述代码，我们一般想的操作是把 span 移到 p 后面，但 diff 算法实际上做的是删除 span 并创建一个 span 插入到 p 后，因为 span 和 p 并不在同一层
+- 目标：快速找出新旧 VDOM 的不同
+  - 在发现变更的同时，用代价尽可能小的操作更新 DOM
+- 思想：先移动，后增删
+  - 如果有相同的节点，只是顺序不同，就调整顺序（不用创建节点，实现了复用）
+  - 如果没有相同的节点，就删除不存在的节点，添加新的节点
+- 特点：只在同层级之间进行比较
+  - 因为两颗树的完全比较的复杂度为 O(n^3)，所以只进行同层级比较，复杂度降至 O(n)
+  - 如下述代码，我们一般想的操作是把 span 移到 p 后面，但 diff 算法实际上做的是删除 span 并创建一个 span 插入到 p 后面
 
 ```html
 <!-- raw -->
 <div>
     <p>
-    	<b></b>
         <span></span>
     </p>
 </div>
 <!-- new -->
 <div>
-    <p>
-        <b></b>
-    </p>
+    <p></p>
     <span></span>
 </div>
 ```
 
-- 算法实现
+### 具体实现
+
+- patch
 
 ```js
 function patch (oldVnode, vnode) {
@@ -70,7 +64,7 @@ function patch (oldVnode, vnode) {
 }
 ```
 
-- patchVnode
+- patchVnode：比较单个节点
 
 ```js
 function patchVnode (oldVnode, vnode) {
@@ -99,10 +93,10 @@ function patchVnode (oldVnode, vnode) {
 }
 ```
 
-- updateChildren：核心
+- updateChildren：比较节点列表
 
 ```js
-updateChildren (parentElm, oldCh, newCh) {
+function updateChildren (parentElm, oldCh, newCh) {
     // 两个节点的子节点数组首尾指针
     let oldStartIdx = 0, newStartIdx = 0
     let oldEndIdx = oldCh.length - 1
@@ -150,7 +144,7 @@ updateChildren (parentElm, oldCh, newCh) {
             oldEndVnode = oldCh[--oldEndIdx]
             newStartVnode = newCh[++newStartIdx]
         } else {
-           // 不值得比较
+        // 不值得比较
             if (oldKeyToIdx === undefined) {
                 oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
             }
