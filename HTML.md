@@ -126,6 +126,24 @@
   - scrollWidth/Height：自身宽高，对 overflow=scroll 的元素，包含被滚动条隐藏的全部部分
   - clientWidth/Height：自身宽高，不包括 margin，border，滚动条；对 inline 元素，clientHeight 为 0
 
+## Cookie
+
+- 属性
+  - key=value（key 唯一）
+  - expires：过期时间
+    - 正数：在 X 秒内持久化，哪怕关闭浏览器或电脑也能够保持
+    - 负数：不持久化，关闭浏览器就消失
+    - 0：立即删除
+  - domain：生成该 Cookie 的域名
+    - Cookie 不可跨域名，哪怕是同个一级域名下的不同二级域名
+  - path：允许使用该 Cookie 的路径
+    - 设为 / 代表允许所有
+  - secure：是否仅允许安全协议（如 HTTPS）传输
+- 携带过程
+  - 客户端首次访问服务端，服务端响应中有首部 Set-Cookie: uid=6fag5h
+  - 客户端将 Cookie(uid=6fag5h) 存储
+  - 客户端发送请求时，如果请求匹配 domain&path，就自动加上首部 Cookie: uid=6fag5h
+
 ## 普通图层和复合图层
 
 > 详细请看 [浏览器渲染流程 & Composite](https://segmentfault.com/a/1190000014520786)
@@ -152,3 +170,4 @@
 - 可能遇到的问题
   - 由于 "如何声明复合图层" 的后两点造成大量不需要被提升的元素被提升为复合层，出现层爆炸现象
   - 解决办法：手动添加 z-index，人为干预复合层的创建
+
