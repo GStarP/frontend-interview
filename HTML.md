@@ -144,6 +144,18 @@
   - 客户端将 Cookie(uid=6fag5h) 存储
   - 客户端发送请求时，如果请求匹配 domain&path，就自动加上首部 Cookie: uid=6fag5h
 
+## 从输入 URL 到页面加载完成的过程中发生了什么？
+
+> [大量回答](https://www.zhihu.com/question/34873227)
+
+- 解析 URL
+- 生成请求报文；通过 DNS 查询目标 IP 地址
+  - DNS；CDN
+- 发送请求，接收响应
+  - HTTP；TCP
+- 浏览器渲染页面
+  - 浏览器多线程；渲染过程
+
 ## 普通图层和复合图层
 
 > 详细请看 [浏览器渲染流程 & Composite](https://segmentfault.com/a/1190000014520786)
