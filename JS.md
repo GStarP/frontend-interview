@@ -681,7 +681,7 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 - 所有 Tab 共享
 - 浏览器为其单独创建一个进程
 
-## CommonJS 和 ES6 Module
+## 模块化
 
 > [阮一峰](http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html)
 
@@ -709,6 +709,20 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
   - b 执行到依赖 a 的时候又去 a，此时只能拿到 a 前三行给出的东西
   - b 拿到 a 前三行的东西，执行完毕，又回到 a
   - a 拿到 b 全部给出的东西，执行至结束
+
+### AMD
+
+- 为了解决 CommonJS 同步加载的阻塞问题
+- 优点：允许异步、提前加载模块
+- 缺点：声明时必须指定该模块依赖的所有模块，开发成本较高，不好用
+- 实现：RequireJS
+
+### CMD
+
+- 与 AMD 思想相似
+- 优点：相比 AMD 更简单，与 CommonJS 保持了较好的兼容性
+- 缺点：依赖 SPN 进行打包（相当于把指定依赖的工作交给了专门的程序去做），模块的加载逻辑偏重
+- 实现：Sea.js
 
 ### ES6
 
