@@ -143,6 +143,13 @@
   - 客户端首次访问服务端，服务端响应中有首部 Set-Cookie: uid=6fag5h
   - 客户端将 Cookie(uid=6fag5h) 存储
   - 客户端发送请求时，如果请求匹配 domain&path，就自动加上首部 Cookie: uid=6fag5h
+- SameSite
+  - 是 Set-Cookie 的属性之一，有三种值
+  - Lax（默认）：允许导航到目标源的 GET 请求携带
+    - 导航共三种：`<a href="">`，`<link rel="prerender" href="">`，`<form method="GET">`
+    - 比如在 CSDN 通过打开 Github 链接，允许携带本地的 Github 登录状态 Cookie
+  - Strict：只允许同源请求携带
+  - None：允许所有跨域携带；但必须设置 Secure 属性使 Cookie 通过 HTTPS 发送
 
 ## 从输入 URL 到页面加载完成的过程中发生了什么？
 
@@ -182,4 +189,87 @@
 - 可能遇到的问题
   - 由于 "如何声明复合图层" 的后两点造成大量不需要被提升的元素被提升为复合层，出现层爆炸现象
   - 解决办法：手动添加 z-index，人为干预复合层的创建
+
+## CORS
+
+- 跨源资源共享：Cross-Origin Resource Sharing 
+
+- 在了解跨源之前，我们要先了解 **同源策略**
+  - 为什么：是一个重要的安全策略，限制文档或脚本与不同源的资源进行交互，这能帮助阻隔恶意逻辑，减少被攻击的可能
+  - 是什么：协议、域名、端口 全部相同
+
+- 修改源：更改 document.domain，一般只允许改为父域（如 lol.qq.com => qq.com）
+
+- 跨源操作
+
+  - 写操作：如重定向，表单提交；允许
+  - 资源嵌入：如 `<script>` `<style>` `<img>`；允许
+  - 读操作：如 Ajax 请求，fetch API；不允许
+
+- JSONP
+
+  - 原理
+
+    - 因为 `<script>` 标签可以跨源，所以考虑把服务端的数据包装成 JS 以供客户端通过 `<script>` 获取
+
+    ```html
+    <!-- 客户端 -->
+    <script>
+        // 客户端参数
+        const id = 1
+        // 回调函数
+    	function cb(data) { alert(JSON.parse(data)) }
+    	var script = document.createElement('script')
+        script.setAttribute('type', 'text/javascript')
+        script.setAttribute('src', 'other.com?id=' + id + '&callback=cb')
+    </script>
+    ```
+
+    ```js
+    // 根据客户端参数获取数据
+    const id = req.query.id
+    const data = dao.findById(id)
+    // 包装成 JS 代码返回
+    const callback = req.query.callback
+    const js = callback + '(' + JSON.stringify(data) + ')'
+    res.send(js)
+    // 返回后, 客户端会立即执行这段 JS, 即执行 cb(data)
+    ```
+
+  - 缺点
+
+    - 仅支持 GET 接口，因为 `<script>` 发的是 GET 请求
+    - 存在安全问题，只是达成跨源的一种妥协方案
+
+- CORS
+
+  - 客户端几乎不需要额外操作，只需要服务器配置
+  - 两种请求
+    - 简单请求
+      - 方法为 GET/POST/HEAD
+      - 首部不超出 Accept/Accpet-Language/Content-Language/Last-Event-ID/Content-Type (application/x-www-form-urlencoded, multipart/form-data, text/plain)
+    - 非简单请求
+    - 为了兼容一直以来都可以跨源的表单
+  - 处理简单请求
+    - 客户端在首部添加 Origin 表明请求的来源，由服务端判断是否许可
+    - 若许可，响应中带上首部 Access-Control-Allow-Origin: 请求的源 和一些其它首部
+      - Access-Control-Allow-Credentials：布尔值，表示是否允许发送 Cookie
+        - 客户端也要设置 withCredentials 才能发送
+        - Access-Control-Allow-Origin 不能为 *，必须是具体的源
+        - 跨源代码依然无法读取 document.cookie（只准浏览器带）
+      - Access-Control-Expose-Headers：字符串列表，表示允许客户端获取的首部
+        - 否则只能获取 Cache-Control，Content-Language，Content-Type，Expires，Last-Modified，Pragma
+    - 若拒绝，响应不带上上述首部，浏览器因此得知跨源失败，抛出错误
+  - 处理非简单请求
+    - 典型例子：PUT/DELETE；Content-Type=application/json
+    - 在进行正式请求前，会发送预检请求（preflight）
+      - 预检请求方法为 OPTIONS
+      - 会带上 Origin 及其它两个首部
+        - Access-Control-Request-Method：表明客户端将要请求的方法
+        - Access-Control-Request-Headers：表明客户端将要带上的首部
+      - 服务端检查源、方法、首部，依然通过 Access-Control-Allow-Origin 标识是否许可
+        - Access-Control-Allow-Methods：表明服务端支持的所有请求方法，意在减少后续预检
+        - Access-Control-Allow-Headers：表明服务端支持的所有首部
+        - Access-Control-Allow-Credentials
+        - Access-Control-Max-Age：本次预检的有效期，期间不用重新预检
 
