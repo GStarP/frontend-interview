@@ -273,3 +273,19 @@
         - Access-Control-Allow-Credentials
         - Access-Control-Max-Age：本次预检的有效期，期间不用重新预检
 
+## DocumentFragment
+
+- 文档碎片，可以类比 Vue 的 `<template>`
+- 主要用途：将多次 DOM 操作先在文档碎片上做完，再把文档碎片挂载到真实 DOM，减少 reflow
+
+```js
+var listElement = document.querySelector('#list')
+
+var fragment = new DocumentFragment()
+arr.forEach((e) => {
+  var li = document.createElement('li')
+  fragment.appendChild(li)
+})
+listElement.appendChild(fragment)
+```
+
