@@ -733,6 +733,53 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
   - ES6 不关心是否发生循环引用
   - 开发者自己保证取到正确的值
 
+## 循环
+
+- for...in...
+  - obj 是数组时，遍历下标（且是字符型）
+  - obj 是对象时，遍历属性
+    - 遍历对象的可枚举属性（包括从原型中继承的属性）
+- for...of...
+  - ES6
+  - 遍历可迭代对象（如遍历数组元素）
+  - 不能直接遍历对象的属性
+    - for (let key of Object.keys(obj)) {...}
+- forEach((ele, idx) => {...})
+  - Array.prototype 的一个方法
+  - 不能 break 或 return
+
+## Async & Await
+
+- ES 7
+- async
+  - 修饰 function，返回一个 Promise 对象
+  - 若返回普通数据，则返回 Promise.resolve(data)
+- await
+  - 只能写在 async function 里
+  - 可以理解为一个运算符，如果接普通数据，则等价于 await Promise.resolve(data)
+  - 如果接 Promise，则会阻塞后续代码，直到 resolve/reject
+  - 意义：当异步操作依赖上一个一步操作，就会形成 then 的调用链，写起来很不友好，用 await 就可以以同步的形式编写
+  - 如果 Promise 被 reject 了怎么办：把 await 放在 try..catch 里
+
+## ~~ 和 | 的妙用
+
+~~ 可以用作转整数
+
+```js
+~~null       // 0
+~~undefined  // 0
+~~1.8        // 0
+~~-1.8       //-1
+~~'4'        // 4
+```
+
+| 可以用作取整
+
+```js
+1.2 | 0   // 1
+-1.2 | 0  // 1
+```
+
 ## 精度问题
 
 > [JS 魔法堂：彻底理解 0.1 + 0.2 === 0.30000000000000004 的背后](https://www.cnblogs.com/fsjohnhuang/p/5115672.html)
@@ -803,25 +850,6 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
   }
   ```
 
-## ~~ 和 | 的妙用
-
-~~ 可以用作转整数
-
-```js
-~~null       // 0
-~~undefined  // 0
-~~1.8        // 0
-~~-1.8       //-1
-~~'4'        // 4
-```
-
-| 可以用作取整
-
-```js
-1.2 | 0   // 1
--1.2 | 0  // 1
-```
-
 ## 大数计算
 
 - 当数值超过 Number.MIN_SAFE_INTEGER 时会转为科学计数法表示
@@ -842,18 +870,3 @@ function addBigNumber(a, b) {
   return res.replace(/^0+/, '');
 }
 ```
-
-## 循环
-
-- for...in...
-  - obj 是数组时，遍历下标（且是字符型）
-  - obj 是对象时，遍历属性
-    - 遍历对象的可枚举属性（包括从原型中继承的属性）
-- for...of...
-  - ES6
-  - 遍历可迭代对象（如遍历数组元素）
-  - 不能直接遍历对象的属性
-    - for (let key of Object.keys(obj)) {...}
-- forEach((ele, idx) => {...})
-  - Array.prototype 的一个方法
-  - 不能 break 或 return
