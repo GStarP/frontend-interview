@@ -1,5 +1,25 @@
 # JS
 
+## 数据类型
+
+- 原始数据类型
+  - String
+  - Number
+    - Number.MAX_VALUE/MIN_VALUE，NaN
+  - Boolean
+  - Undefined
+  - Null
+  - BigInt
+    - 在数字结尾加上 "n"
+    - Number.MAX_SAFE_INTEGER
+  - Symbol
+    - ES6
+    - 唯一值，哪怕描述相同（即 Symbol("desc")  !== Symbol("desc")）
+    - 不会主动转 String（console.log(Symbol("desc")) 报错）
+    - 但可以调 sym.toString()
+    - 可以用作对象属性
+- Object
+
 ## call & apply
 
 - 作用：改变 this 的指向，让一个对象去调用自己没有的，另一个对象的方法
