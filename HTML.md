@@ -4,14 +4,20 @@
 
 - inline（行内/内联元素）
   - 和其他元素在同一行上
-  - 设置 height，width，padding/margin-top/bottom 无效
-  - 宽度就是其内容的宽度，不可改变
+  - **设置 height，width，padding/margin-top/bottom 无效**
+    - 这里牵扯到另一个概念，叫做 **替换元素**，我们认为其指不使用 CSS 控制，其宽高也会随着显示内容而改变的元素
+      - `<img>`：宽高随着显示图片的大小而改变
+      - `<input>`：随着不同的 type 显示单选框或者输入框而改变
+      - 还有 textarea，iframe，canvas……
+    - 这些行内元素可以设置宽高，因为本质上是在为其中的内容设置宽高
+    - 而它们之外的 **非替换元素**，例如 span，label 等，就无法设置宽高了
+  - 一般情况下，只能容行内元素和数据
   - 常见
     - a
-      - 可包含除自身以外任何元素
-    - button
     - label
     - span
+    - img
+    - input
     - del/em/i/strong/b
 - block（块级元素）
   - 总是从新的一行开始
@@ -20,7 +26,6 @@
   - 常见
     - div
     - p
-      - 不能包含任何块级元素，包括自身
     - ul/ol
     - table/tbody/thead/tfoot/th/tr/td
     - hr
@@ -28,6 +33,8 @@
 - inline-block
   - 和其他元素在同一行上
   - 可以设置 height，width，padding/margin-top/bottom
+  - 常见
+    - button
 
 ## Reflow & Repaint
 
