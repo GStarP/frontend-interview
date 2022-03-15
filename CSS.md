@@ -76,15 +76,15 @@ div {
 
 ## 盒模型
 
+> [MDN 盒模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/The_box_model)
+
 [点击查看](./css/box-sizing.html)
 
 - 盒模型的基本规范：margin-border-padding-content(width, height)
-- 应用 box-sizing: border-box 后
+- 应用 box-sizing: border-box 后（默认 content-box）
   - width = border + padding + content-width（height 亦同）
   - 假设 width 为 50%， padding 为 10 px，父元素宽度为 300px
   - 如果不添加 box-sizing: border-box，则其实际宽度并非 150px 而是 150+10+10=170 px
-- margin/padding 设置百分比
-  - 都是根据父容器的宽度来决定的
 - background-clip
   - border-box：带 border
   - padding-box：不带 border 带 padding
@@ -92,7 +92,16 @@ div {
 - outline
   - 类似 border，但不占空间
 
-> 更多参见 [MDN 盒模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/The_box_model)
+## 百分比
+
+> 父元素：第一个 position 不为 static 的祖先元素
+
+- 相对于父元素宽度：[max/min-]width，padding，margin，left，right
+- 相对于父元素高度：[max/min-]height，top，bottom
+- 相对于继承字号：font-size
+- 相对于自身字号：line-height
+- 相对于自身宽高：border-radius，background-size，transform
+- 如果 position: fixed，父元素为窗口
 
 ## 文档流和文本流
 
@@ -156,14 +165,15 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
   - right 使用 margin-right: -[右宽度] 使 right 移到右侧
   - 但为了保证最小宽度，需要设置 container 的 min-width: [左+左+右]
 - Flex
-  - left 设置 order 为 -1 保证在最前
+  - left 设置 order 为 -1 保证在最左
 
 ## 变量
 
 [点击查看](./css/variable.html)
 
-- 可以定义以 “--” 为开头的变量，便于复用
-- 定义时需要声明其作用于，定义在 :root 里可以保证作用到全局
+- 名称一般以 “--” 开头，如 `--text-color: blue;`
+- 定义时需要声明其作用域，定义在 :root 里可以保证作用到全局
+- 使用：`color: var(--text-color)`
 
 ## Dark Mode
 
