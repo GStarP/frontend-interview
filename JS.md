@@ -14,10 +14,9 @@
     - Number.MAX_SAFE_INTEGER
   - Symbol
     - ES6
-    - 唯一值，哪怕描述相同（即 Symbol("desc")  !== Symbol("desc")）
-    - 不会主动转 String（console.log(Symbol("desc")) 报错）
-    - 但可以调 sym.toString()
-    - 可以用作对象属性
+    - 唯一值，哪怕描述相同吗，即 Symbol("desc")  !== Symbol("desc")
+    - 可以用作对象属性，必须通过 object[symbol] 访问
+    - 不会出现在 for...in/Object.keys()/Object.getOwnPropertyNames() 中，只能用 Object.getOwnPropertySymbols() 和 Reflect.ownKeys() 获取
 - Object
 
 ## call & apply
