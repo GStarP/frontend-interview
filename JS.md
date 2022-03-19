@@ -780,6 +780,82 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
   - 意义：当异步操作依赖上一个一步操作，就会形成 then 的调用链，写起来很不友好，用 await 就可以以同步的形式编写
   - 如果 Promise 被 reject 了怎么办：把 await 放在 try..catch 里
 
+## 深拷贝
+
+1、JSON 转换
+
+```js
+const newObj = JSON.parse(JSON.stringify(oldObj))
+```
+
+缺点：无法拷贝函数；无法拷贝原型链；无法拷贝 undefiend，RegExp 等类型
+
+2、Object.assign
+
+```js
+const newObj = Object.assign({}, oldObj)
+```
+
+缺点：如果对象属性也是引用，只会浅拷贝
+
+3、递归拷贝
+
+其中涉及到很多问题：
+
+- 判断对象类型：非 Object，Object，Array，RegExp……
+- 循环引用：o1.a = o2 同时 o2.b = o1，如果不特殊处理，会在递归时反复调用 DeepClone(o1/o2) 导致爆栈
+
+一种比较简单且全面的实现
+
+```js
+function isPrimitive(value){
+  return (typeof value === 'string' || 
+  typeof value === 'number' || 
+  typeof value === 'symbol' ||
+  typeof value === 'boolean')
+}
+
+function isObject(value){
+  return Object.prototype.toString.call(value) === "[object Object]"
+}
+
+function cloneDeep(value){
+
+  // 记录被拷贝的值, 避免循环引用
+  let memo = {};
+
+  function baseClone(value){
+    let res;
+      
+    if(isPrimitive(value)){
+      return value;
+    }else if(Array.isArray(value)){
+      res = [...value];
+    }else if(isObject(value)){
+      res = {...value};
+    }
+
+    // Reflet.ownKeys 返回所有非原型链上且包含 Symbol 的属性
+    Reflect.ownKeys(res).forEach(key => {
+      if(typeof res[key] === "object" && res[key] !== null){
+        // 如果已经记录过这个引用, 直接取出来赋值, 不再递归
+        if(memo[res[key]]){
+          res[key] = memo[res[key]];
+        }else{
+          memo[res[key]] = res[key];
+          res[key] = baseClone(res[key])
+        }
+      }
+    })
+    return res;  
+  }
+
+  return baseClone(value)
+}
+```
+
+最佳实现可参考 [lodash._cloneDeep](https://github.com/lodash/lodash/blob/master/cloneDeep.js)
+
 ## ~~ 和 | 的妙用
 
 ~~ 可以用作转整数
