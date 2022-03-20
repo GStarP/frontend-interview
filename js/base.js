@@ -19,7 +19,23 @@ console.log(typeof func); // function
 console.log(typeof {}); // object
 console.log(typeof []); // object
 console.log(typeof null); // object
+console.log(typeof /^d+$/); // object
 console.log(typeof undefined); // undefined
+console.log(typeof Symbol('s')); // symbol
+console.log(typeof 1n); // bigint
+
+/**
+ * Object.prototype.toString
+ * 用于获取 [[Class]], 主要用来判断 typeof = object 的具体类型
+ */
+ const arr = [];
+ console.log(Object.prototype.toString.call(arr)); // [object Array]
+ function HXW() {}
+ const p = new HXW();
+ console.log(Object.prototype.toString.call(p)); // [object Object]
+ const r = /^d+$/;
+ console.log(Object.prototype.toString.call(r)); // [object RegExp]
+ console.log(Object.prototype.toString.call(null)); // [object Null]
 
 /**
  * instanceof
@@ -33,16 +49,8 @@ function HXW() {}
 const p = new HXW();
 console.log(p instanceof HXW); // true
 console.log(p instanceof Object); // true
-
-/**
- * Object.prototype.toString
- * 用于获取 [[Class]]
- */
-const arr = [];
-console.log(Object.prototype.toString.call(arr)); // [object Array]
-function HXW() {}
-const p = new HXW();
-console.log(Object.prototype.toString.call(p)); // [object Object]
+const n = Number('1')
+console.log(n instanceof Number); // false 因为基本类型不存在原型链一说
 
 /**
  * sort
@@ -59,6 +67,7 @@ const arr = [5, 4, 3];
 for (let i in arr) {
   console.log(arr[i]);
 }
+// for in 会遍历原型链上的属性
 function Sup() {
   this.name = 'hxw';
 }
@@ -76,7 +85,7 @@ const arr = [1, 2, 3];
 arr.forEach((e, i) => {
   if (i === 2) {
     // break is illegal
-    // break
+    break
   }
   console.log(`${i}: ${e}`);
 });
