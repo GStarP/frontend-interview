@@ -227,3 +227,11 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 - 具体问题：当无上边距的 body 中有且仅有一个 margin-top=20 的子元素时，body 会因此拥有 20 的上边距，被子元素拉下来
 
 - 解决：给 body 上 border-top 或 padding-top，但高度不能为 0；或者用空 div 隔开
+
+## Border 是三角形的
+
+[点击查看](./css/border.html)
+
+- border 并非直线，而是三角形
+- 平时我们将 border 宽度设置得很小，content 在中间挡住 border 的尖角部分，剩下的部分看起来就像是一条直线
+- 但如果把 border 宽度设置得很大，content 设置得很小，就能看到 border 三角形的真身
