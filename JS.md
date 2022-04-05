@@ -704,7 +704,7 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 
 > [阮一峰](http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html)
 
-### CommonJS
+### CommonJS（CJS）
 
 - 动态语法，可以写在条件判断里
 - 模块引入
@@ -743,7 +743,7 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 - 缺点：依赖 SPN 进行打包（相当于把指定依赖的工作交给了专门的程序去做），模块的加载逻辑偏重
 - 实现：Sea.js
 
-### ES6
+### ES6 Module（ESM）
 
 - 加载 import 时，不会去运行模块，而是生成一个引用，等到使用时才去取值（无缓存）
 - 只读引用：不论是基本还是复杂都不能更改
