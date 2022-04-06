@@ -856,6 +856,15 @@ function cloneDeep(value){
 
 最佳实现可参考 [lodash._cloneDeep](https://github.com/lodash/lodash/blob/master/cloneDeep.js)
 
+## 创建二维数组
+
+```js
+const mat = new Array(3).fill(0).map(_ => new Array(3).fill(0))
+// 为什么不这样？
+const mat = new Array(3).fill(new Array(3).fill(0))
+// 因为 fill 指向同一个引用, 修改 mat[0][0] 会导致 mat[1][0],mat[2][0] 都被修改
+```
+
 ## ~~ 和 | 的妙用
 
 ~~ 可以用作转整数
