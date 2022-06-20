@@ -296,3 +296,23 @@ arr.forEach((e) => {
 listElement.appendChild(fragment)
 ```
 
+## \<iframe\>
+
+- 作用：在页面中嵌套显示一个“页面上下文”
+
+  - 可以简单理解为一个 Tab
+  - 拥有自己的 window 和 document
+
+- 如何操作
+
+  ```html
+  <iframe id='if' name='qq' src='email.qq.com'>
+  ```
+
+  - ifEl.contentWindow：iframe 的 window（BOM）对象
+  - ifEl.contentWindow.document：iframe 的 document（DOM）对象
+    - 如果页面与 iframe 跨域，则无法操作其 DOM
+    - 如果同属一个高级域名，可以分别执行 document.domain="qq.com" 设置同域
+  - iframe 也可以获取父级 window 对象，同源可操作
+    - window.top：顶级
+    - window.parent：上一级
