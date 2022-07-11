@@ -219,11 +219,12 @@ function Son(name, age) {
     Father.call(this, name)
     this.age = age
 }
-// 拷贝父类的原初对象, 把他的 constructor 变成子类构造函数, 作为子类的原初对象
+// Object.create 会自动将父类原型对象作为新对象的 __proto__
+// 记得将新对象的 constructor 改为 Sub 以符合定义
+// 如果直接 Sub.prototype = Sup.prototype ，后续为 Sub 类添加方法就会影响到 Sup 类
 function inherit(Sub, Sup) {
-    let s = Object(Sup.prototype)
-    s.constructor = Sub
-    Sub.prototype = s
+    Sub.prototype = Object.create(Sup.prototype)
+    Sub.prototype.constructor = Sub
 }
 inherit(Son, Father)
 let son = new Son('Tom', 18)
@@ -234,8 +235,13 @@ console.log(son2.friends)
 ```
 
 - 优点
-  - 在设定原型链这一环节，解决了“构造函数+原型”模式的缺点
-  - 子类的原型对象是父类的原型对象的拷贝，更加符合语言设计，不会产生无用的实例属性
+  - 解决了上述所有问题
+
+> 附：instanceOf 与 isPrototypeOf 的区别
+>
+> a instanceOf B：a 是实例对象，B 是构造函数，判断 B.prototype 是否在 a 的原型链中
+>
+> B.prototype.isPrototypeOf(a)：a 是实例对象，B 是构造函数，判断 B.prototype 是否在 a 的原型链中（注意不能直接 B.isprototypeOf(a) !）
 
 ## 作用域链
 
