@@ -110,6 +110,18 @@ console.log(instance)
   - 检查某个属性是否属于当前对象而不是它的原型链，使用从 Object.prototype 继承的方法 hasOwnProperty
     - hasOwnProperty() 和 Object.keys() 是 **唯二** 不会遍历原型链的方法
 
+### 遍历属性
+
+- 以下情况会遍历到原型链上的属性
+  - for...in：可枚举全部属性
+  - 想枚举原型链上的非可枚举属性，只有通过 Object.getPrototypeOf(obj) 一层一层向上取原型然后 getOwnPropertyNames(prototype)
+- 以下不会
+  - Object.keys/values/entries(obj)：可枚举自身属性
+  - Object.getOwnPropertyNames(obj)：全部自身属性（不包括 Symbol）
+  - Object.getOwnPropertySymbols(obj)：全部自身 Symbol 属性
+  - Reflect.ownKeys(obj)：真正的全部自身属性
+- 可以用 obj.hasOwnProperty(key) 检测属性是否属于自身
+
 ## 继承
 
 ### 原型链
