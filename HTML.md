@@ -316,3 +316,23 @@ listElement.appendChild(fragment)
   - iframe 也可以获取父级 window 对象，同源可操作
     - window.top：顶级
     - window.parent：上一级
+
+## Storage
+
+通用接口：getItem；setItem；removeItem；clear
+
+只能存 DOMString 类型的值
+
+分类：
+
+- sessionStorage
+
+  - 每个 Tab 一个（哪怕是相同的 URL）
+
+  - 页面会话结束时清除（但重新加载或恢复页面会保持）
+
+  - 如果从 Page1 打开 Page2，则 Page2 会复制 Page1 的 sessionStorage
+
+- localStorage
+  - 同 sessionStorage，但永久保持！
+  - 容量一般在 5MB 左右
