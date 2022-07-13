@@ -874,6 +874,24 @@ function cloneDeep(value){
 
 最佳实现可参考 [lodash._cloneDeep](https://github.com/lodash/lodash/blob/master/cloneDeep.js)
 
+## 函数参数
+
+- Argument
+  - function(a,b,c) => arguments = [a, b, c]
+  - typeof arguments = 'object'
+  - 类数组对象
+    - 有 length 属性（func.length 为函数定义的参数数量）
+    - 可以使用下标访问和修改
+    - **只有这两点！其它数组方法都没有！**
+  - 转为数组
+    - var args = Array.prototype.slice.call(arguments)
+    - const args = Array.from(arguments)
+    - const args = Array.from[...arguments]
+- 剩余参数
+  - function(a, b, c) => function(a, ...args) => args = [b, c]
+  - 只能定义在函数参数的最后！
+  - 是一个真正的 Array
+
 ## 创建二维数组
 
 ```js
