@@ -2,6 +2,8 @@
 
 ## $nextTick
 
+> [nextTick | Vue3 OnePiece](https://vue3js.cn/global/nextTick.html)
+
 - 语法
 
 ```js
@@ -14,24 +16,24 @@ Vue.$nextTick().then(function () {
 })
 ```
 
-- 意义：在下次 DOM 更新循环结束之后执行回调
-- Vue 的异步 DOM 更新
-  - 第一个 tick（当前 tick）时修改数据，数据已被修改；Vue 开启一个异步队列，缓冲在此事件循环中发生的所有数据更改（把 watcher 入队）
-  - 第二个 tick（就是所说的下次 DOM 更新循环），同步任务执行完毕，开始执行异步队列的任务，更新 DOM（会先尝试使用 Promise.then 和 MessageChannel，若不支持则改用 setTimeout(fn, 0)）
-  - 第三个 tick，执行 nexTick 中定义的回调
-- 在 created 和 mounted 阶段，需要操作渲染后的视图必须使用 nextTick（因为 mounted 不保证其子组件渲染完成）
+- 意义：会将回调延迟到下次 DOM 更新循环之后执行
+- 流程
+  - 执行宏任务，宏任务包含更新数据和调用 nextTick
+    - 全部数据更新完毕，不重复的 effect（执行视图更新的函数）被加入队列 A 中
+    - nextTick 被调用，回调被加入队列 B 中
+
+  - 宏任务执行完毕，开始执行微任务 flushJobs
+    - 先对队列 A 排序，保证父组件视图更新优先于子组件（因为总是先渲染父组件，且父组件更新有可能卸载子组件）
+    - 执行所有视图更新执行
+    - 执行所有回调（所以回调总是能拿到更新后的 DOM）
+
+- 在 created 和 mounted 阶段，想要操作渲染后的视图必须使用 nextTick（因为 mounted 不保证其子组件渲染完成）
 - 实现
-  - Vue 2.5 之前：采用 MutationObserver 实现
-    - MutationObserver 能监听 DOM 节点的更改
-      - var mo = new MutationObserver(function() { callback })
-      - mo.observe(element)
-    - Vue 的做法是通过监听一个自己创建的文本节点，然后让文本节点的数据在 '0' 和 '1' 之间变化，以此来触发 MutationObserver 执行回调，也就是我们在 nextTick 中定义的回调
-    - 利用了 MutationObserver 是微任务，微任务总是在宏任务结束，渲染完成后被执行，所以可以获取到更新后的 DOM
-  - Vue 2.5 及之后：由于 MutationObserver 在 IOS 未被支持，被迫降级
-    - 降级顺序
-      - setImmediate：微任务
-      - MessageChannel 的回调：微任务
-      - setTimeout(, 0)：宏任务，有 4ms 的延迟
+  - Promise.then
+  - setImmediate
+  - MessageChannel
+  - setTimeout(, 0)
+
 
 ## 生命周期
 
