@@ -27,7 +27,6 @@ Vue.$nextTick().then(function () {
     - 执行所有视图更新执行
     - 执行所有回调（所以回调总是能拿到更新后的 DOM）
 
-- 在 created 和 mounted 阶段，想要操作渲染后的视图必须使用 nextTick（因为 mounted 不保证其子组件渲染完成）
 - 实现
   - Promise.then
   - setImmediate
@@ -43,21 +42,22 @@ Vue.$nextTick().then(function () {
 
 - 创建 Vue 实例
 - 初始化事件和生命周期
-- **beforeCreate**：组件 option 未创建，无 data/methods/computed...
+- **beforeCreate**：组件 option 未创建，无 data/methods/computed......
 - 初始化注入和响应数据
-- **created**：有 data/computed/watcher...，无 $el
+- **created**：有 data/methods/computed......
 - 判断是否有 options.el，若没有编译会暂时停止，等到调用 vm.$mount(el) 时再继续
-- 判断是否有 options.template，若有则将其编译为 render()，若没有则将 el 内的 HTML 作为 template
-  - 结合 data 和 template 生成带数据的 HTML
-  - 也可以直接定义 render()，它的优先级最高
-- **beforeMount**：无 $el，带数据的 HTML 还没有挂载到页面上
-- 用带数据的 HTML 作为 $el，替换 options.el 指向的节点
-- **mounted**：有 $el，渲染完成
-- 每当 data 变化
-- **beforeUpdate**：data 变化，但页面未更新
-- VDOM re-render and patch
-- **updated**：页面重新渲染完毕
-- 调用 vm.$destroy()
+- vm.$mount(el)：判断是否有 options.template，若有则将其编译为 render，没有则将 el 内的 HTML 作为 template
+  - 也可以直接定义 render，它的优先级最高
+
+- 执行 render，得到 vnode
+- **beforeMount**：**无 $el**，DOM 未更新
+- patch vnode，修改 \$el，更新 DOM
+- **mounted**：有 $el，DOM 已更新
+- 每当 data 更新
+- **beforeUpdate**：data 更新，DOM 未更新
+- patch vnode
+- **updated**：DOM 已更新
+- vm.$destroy()
 - **beforeDestroy**：实例未销毁
 - 移除 watcher，event listener 和 子实例
 - **destroyed**：实例已销毁
