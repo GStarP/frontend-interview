@@ -158,17 +158,50 @@
   - 客户端将 Cookie(uid=6fag5h) 存储
   - 客户端发送请求时，如果请求匹配 domain&path，就自动加上首部 Cookie: uid=6fag5h
 
-## 从输入 URL 到页面加载完成的过程中发生了什么？
+## 浏览器渲染原理
 
-> [大量回答](https://www.zhihu.com/question/34873227)
+> [渲染页面：浏览器的工作原理 - Web 性能 | MDN](https://developer.mozilla.org/zh-CN/docs/Web/Performance/How_browsers_work)
 
-- 解析 URL
-- 生成请求报文；通过 DNS 查询目标 IP 地址
-  - DNS；CDN
-- 发送请求，接收响应
-  - HTTP；TCP
-- 浏览器渲染页面
-  - 浏览器多线程；渲染过程
+- 从输入 URL 到页面加载完成的过程中发生了什么？
+  - 导航：输入 URL，点击链接，提交表单……
+    - DNS 查询服务器 IP
+    - TCP 三次握手建立连接
+    - TLS 协商建立安全连接
+
+  - 响应：发送 HTTP 请求
+    - TCP 慢启动：第一个响应数据包 14KB，之后逐渐加倍直到达到预定值或发生拥塞
+      - 能够逐步建立合适的网络传输速度
+
+  - 解析
+    - HTML => DOM，请求所包含的资源
+    - CSS => CSSOM；执行 JS
+
+  - 渲染
+    - DOM + CSSOM => Render Tree
+      - display: none 的节点不会出现在 Render Tree 中
+
+    - 布局：计算尺寸和位置（Reflow）
+    - 绘制：绘制实际像素（Repaint）
+      - 部分元素会被提升到 GPU 上的层单开线程绘制，而非全部在 CPU 中的主线程中绘制
+
+    - 合成：多层可能相互重叠，所以需要合成
+
+  - 交互
+    - onload 事件之后，如果浏览器还在下载解析执行 JS，则页面虽然可视，但无法交互
+
+- 浏览器渲染帧
+  - **不是只有 Reflow 和 Repaint 才会触发渲染！浏览器会根据刷新频率自动渲染（60FPS => 16.6ms）！**
+  - 内核进程中存在一个 Compositor 线程，当它接收到每一帧的数据时，先判断是否需要交给渲染线程
+    - 比如：`<input>`光标闪烁；没有绑定事件的 `<input>` 输入回显……都可以直接交给 GPU 渲染，无需触发渲染线程
+
+  - 但如果需要处理事件、改变了 DOM 布局等，就必须交给渲染线程走一个完整流程：
+    - 处理交互回调
+    - requestAnimationFrame
+    - 走解析-布局-绘制-合成的一套流程
+    - 交还给 Compositor 线程进行栅格化（把渲染结果转化为 GPU 需要的形式），提交给 GPU 进行实际渲染
+    - 一个渲染帧结束
+    - 在渲染帧完成并提交后，如果 16.6ms 还没花完，可以执行 requestIdleCallback 注册的小任务
+
 
 ## 普通图层和复合图层
 
