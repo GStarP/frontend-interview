@@ -250,9 +250,9 @@ console.log(son2.friends)
   - 解决了上述所有问题
 
 > 附：instanceOf 与 isPrototypeOf 的区别
->
+> 
 > a instanceOf B：a 是实例对象，B 是构造函数，判断 B.prototype 是否在 a 的原型链中
->
+> 
 > B.prototype.isPrototypeOf(a)：a 是实例对象，B 是构造函数，判断 B.prototype 是否在 a 的原型链中（注意不能直接 B.isprototypeOf(a) !）
 
 ## 作用域链
@@ -368,16 +368,16 @@ for (var i = 0; i < 3; i++) {
 > [MDN - 闭包](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)
 
 - 定义
-
+  
   - 闭包由 函数定义 以及 定义它的词法环境 组成
   - 每当定义一个函数，就会生成一个闭包
 
 - 词法环境
-
+  
   - 词法环境包含了定义函数的作用域内的所有局部变量
   - 这个函数不销毁，它所依赖的词法环境就不销毁
   - 我们认为函数运行完后，定义在其内的局部变量就会被销毁；但闭包提供了一种将其保持的方法，那就是返回一个依赖函数内部变量的子函数，子函数和函数内部变量构成了一个闭包，函数本质上创建并返回的是这个闭包
-
+  
   ```js
   function makeAdder(x) {
     // x 是 makeAdder 的内部变量, 一般来说在 makeAdder 运行完后就会销毁
@@ -395,9 +395,9 @@ for (var i = 0; i < 3; i++) {
   ```
 
 - 作用
-
+  
   - 定义私有变量/方法（且有命名空间的能力）
-
+  
   ```js
   var makeCounter = function() {
     var privateCounter = 0
@@ -414,9 +414,9 @@ for (var i = 0; i < 3; i++) {
   ```
 
 - 缺点
-
+  
   - 循环闭包
-
+  
   ```js
   function blinkAllEl() {
     for (var i = 0; i < els.length; i++) {
@@ -441,18 +441,18 @@ for (var i = 0; i < 3; i++) {
   // 解决方案二: 使用 let 把 el 定义在每次循环的块作用域
   let el = els[i];
   ```
-
+  
   - 内存泄漏：[有争议](https://www.zhihu.com/question/22806887)
     - IE 低版本使用不同的内存管理器管理 JS 对象和 DOM 对象，如果他们之间存在循环依赖，IE 就无法释放任何一个对象
-
+  
   ```js
   function (element, a){
       // element 依赖这个匿名函数, 这个匿名函数被维持
-  	element.onclick = function(){
+      element.onclick = function(){
           // 只使用了 a, 但词法环境导致 element 也被维持
           /* 这里有个问题: 上面的词法环境实现是"不管是否使用, 变量统统保存", 而先进的实现是否如此并不知道 */
-  		console.log(a)
-  	}
+          console.log(a)
+      }
   }
   ```
 
@@ -461,9 +461,9 @@ for (var i = 0; i < 3; i++) {
 - 把 N 个参数的函数变换成“接收 1 个参数，返回接收 N-1 个参数的函数，的函数”
 
 - 目的
-
+  
   - 参数复用
-
+  
   ```json
   function regexCheck(reg, txt) {
       return reg.test(txt)
@@ -478,9 +478,9 @@ for (var i = 0; i < 3; i++) {
   
   var hasNumber = curryingRegexCheck(/\d+/g)
   ```
-
+  
   - 延迟执行：Function.bind 就是通过柯里化实现的
-
+  
   ```js
   Function.prototype.bind = function(context) {
       let self = this
@@ -500,7 +500,7 @@ const curry = function(fn) {
     let self = this
     let argNum = fn.length
     let preArgs = Array.prototype.slice.call(arguments, 1)
-    
+
     return function() {
         let newArgs = Array.prototype.slice.call(arguments)
         let _args = preArgs.concat(newArgs)
@@ -618,21 +618,28 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 > [对于 JS 任务队列的理解](https://segmentfault.com/a/1190000016295324)
 
 - 任务队列并不只是一个队列，而是分为微任务队列和宏任务队列
+  
   - 宏任务队列其实也有多个，其中鼠标和键盘事件的回调往往具有最高的优先级
 
 - 宏任务
+  
   - 基础代码
   - DOM 事件回调
   - setTimeout / setInterval
+
 - 微任务
+  
   - Promise.then
   - MutationObserver
+
 - 执行过程
+  
   - 出队一个宏任务，进入执行栈执行（执行产生的宏任务和微任务进入各自队列）
   - **执行栈空**，出队所有微任务，进入执行栈执行
     - **微任务产生的微任务也将继续在这一事件循环中执行**
   - 判断是否需要渲染（由刷新率、性能、页面是否处于后台等因素共同决定）
   - 如果有，出队下一个宏任务，持续循环
+
 - 有一个易于理解的可视化实例：[Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly?_blank)
 
 > [一个特例](https://www.zhihu.com/question/362096226)：dispathEvent（包括手动触发 click 等）是同步的，不会进入宏任务队列，而是直接在当前循环执行
@@ -652,25 +659,25 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 
 ### 多进程
 
-  - 多进程：每个 Tab 都是一个单独的进程
-    - Tab 和进程有时也并非一对一（比如多个空白标签页会被合并成一个）
-  - 进程分类
-    - 主进程
-      - 只有一个
-      - 负责浏览器界面显示，与用户交互（前进，后退等）
-      - 负责各个页面（其它进程）的管理
-      - 将渲染进程得到的 Bitmap 绘制到用户界面上
-      - 网络资源的下载管理
-    - 渲染进程（浏览器内核进程）
-      - 默认每个 Tab 一个
-      - 页面渲染，脚本执行，事件处理等
-    - GPU 进程
-      - 最多一个，用于 3D 绘制
-    - 第三方插件进程
-  - 浏览器多进程的优势
-    - 避免单个 Tab 或插件崩溃影响整个浏览器
-    - 充分利用多核优势
-    - 方便隔离插件等进程，提高浏览器稳定性
+- 多进程：每个 Tab 都是一个单独的进程
+  - Tab 和进程有时也并非一对一（比如多个空白标签页会被合并成一个）
+- 进程分类
+  - 主进程
+    - 只有一个
+    - 负责浏览器界面显示，与用户交互（前进，后退等）
+    - 负责各个页面（其它进程）的管理
+    - 将渲染进程得到的 Bitmap 绘制到用户界面上
+    - 网络资源的下载管理
+  - 渲染进程（浏览器内核进程）
+    - 默认每个 Tab 一个
+    - 页面渲染，脚本执行，事件处理等
+  - GPU 进程
+    - 最多一个，用于 3D 绘制
+  - 第三方插件进程
+- 浏览器多进程的优势
+  - 避免单个 Tab 或插件崩溃影响整个浏览器
+  - 充分利用多核优势
+  - 方便隔离插件等进程，提高浏览器稳定性
 
 ### 浏览器内核
 
@@ -718,6 +725,7 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 - 只属于某个 Tab，不与其他渲染进程共享
 
 #### SharedWorker
+
 - 所有 Tab 共享
 - 浏览器为其单独创建一个进程
 
@@ -763,6 +771,14 @@ console.log(f.name)  // undefined: this 指向的是返回的 {}
 - 优点：相比 AMD 更简单，与 CommonJS 保持了较好的兼容性
 - 缺点：依赖 SPN 进行打包（相当于把指定依赖的工作交给了专门的程序去做），模块的加载逻辑偏重
 - 实现：Sea.js
+
+### UMD
+
+- Universal Module Definition
+
+- 是一种通用的模块化导出格式，兼容 CJS、AMD、CMD 甚至 ESM，是浏览器中常用的格式
+
+- 其本质就是通过 module/define 等变量分析当前所处的环境，然后按照 CJS/AMD/... 的要求进行导出
 
 ### ES6 Module（ESM）
 
@@ -847,7 +863,7 @@ function cloneDeep(value){
 
   function baseClone(value){
     let res;
-      
+
     if(isPrimitive(value)){
       return value;
     }else if(Array.isArray(value)){
@@ -889,7 +905,7 @@ function cloneDeep(value){
   - 转为数组
     - var args = Array.prototype.slice.call(arguments)
     - const args = Array.from(arguments)
-    - const args = Array.from[...arguments]
+    - const args = [...arguments]
 - 剩余参数
   - function(a, b, c) => function(a, ...args) => args = [b, c]
   - 只能定义在函数参数的最后！
@@ -928,23 +944,23 @@ const mat = new Array(3).fill(new Array(3).fill(0))
 > [JS 魔法堂：彻底理解 0.1 + 0.2 === 0.30000000000000004 的背后](https://www.cnblogs.com/fsjohnhuang/p/5115672.html)
 
 - 常见问题
-
+  
   - 0.1 + 0.2 === 0.30000000000000004
   - 0.7 * 180 === 125.99999999998
   - 1000000000000000128 === 1000000000000000129
 
 - Number
-
+  
   - 采用 IEEE 754 64 位双精度浮点编码
   - 具体过程不做详述
 
 - 解决方法
-
+  
   - 保证运算的数字和结果都在 Number.MIN_SAFE_INTEGER 和 Number.MAX_SAFE_INTEGER
     - 分别是正负 9007199254740991
   - 这就牵扯到 浮点 $\rightarrow$ 整数，大数运算 的问题
   - 下面给出两种比较简单的解决方案，但是可以想象，当小数位数较多时，会产生大数问题
-
+  
   ```js
   function accAdd(arg1, arg2) {
       var r1, r2, m, c;
@@ -979,7 +995,7 @@ const mat = new Array(3).fill(new Array(3).fill(0))
       return (arg1 + arg2) / m;
   }
   ```
-
+  
   ```js
   function accMul(arg1, arg2) {
       var m = 0, s1 = arg1.toString(), s2 = arg2.toString();
