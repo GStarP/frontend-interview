@@ -3,7 +3,7 @@
 ## 单位
 
 - px
-
+  
   - 像素：Pixel
   - 相对长度单位，相对于显示器屏幕分辨率（1280px * 1080px）
   - 但在移动设备上，一个 **设备独立像素** 可能对应多个 **物理像素**
@@ -13,7 +13,7 @@
       - Retina(dpr=2) 屏幕下，1px 对应 2*2 个物理像素
 
 - em
-
+  
   - 1em 相当于当前元素的 font-size
   - 如果当前 font-size 未设置，取父元素的，直到默认值 16px
   - 因此我们可以在 body 中设置 font-size: 62.5% 就能让 1px = 10em
@@ -22,22 +22,22 @@
     - 这样就可以只改一个 font-size 而实现全部内容的缩放
 
 - rem
-
+  
   - root em
   - 相对于 html 根元素（JS 中的 document.documentElement；HTML 中的 \<html\>；CSS 中的 :root）的字体大小
   - 适配设备宽度
     - 比如 750px 的设计稿，上 1000px 的设备，就将根元素字体大小设为 16 / 750 * 1000 px
-  
+
 - rpx
-
-  - 自动计算好的 rem
   
-- vh/vw
+  - 自动计算好的 rem
 
+- vh/vw
+  
   - 相对于视窗，视窗被分为 100 vh/vw 的高度/宽度
 
 - vmax/vmin
-
+  
   - 把高和宽中较大/较小的那个划分为 100 vmax/vmin
 
 ## 弹性盒子
@@ -91,6 +91,9 @@ div {
   - content-box：不带 border/padding，只带 content
 - outline
   - 类似 border，但不占空间
+- 标准盒模型 v.s. 怪异盒模型
+  - 标准就是 content-box，怪异就是 border-box
+  - 怪异：因为 IE 设计时与 W3C 规范不一致，但是意外的有用
 
 ## 百分比
 
@@ -212,7 +215,7 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 
 ```css
 :root {
-	--background-color: white;
+    --background-color: white;
     --text-color: black;
 }
 :root .diy {
@@ -224,6 +227,7 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 ## 垂直外边距合并
 
 - 当两个垂直方向的 margin 相邻时，他们将融合成一个 margin，取较大者
+
 - 具体问题：当无上边距的 body 中有且仅有一个 margin-top=20 的子元素时，body 会因此拥有 20 的上边距，被子元素拉下来
 
 - 解决：给 body 上 border-top 或 padding-top，但高度不能为 0；或者用空 div 隔开
