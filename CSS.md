@@ -1,5 +1,21 @@
 # CSS
 
+## 居中方式
+
+- 水平居中
+  
+  - 子元素为 display: inline-block/flex/grid/table 时，父元素设置 text-align: center
+  
+  - 子元素为 display: block 时，设置 margin: 0 auto
+  
+  - 父元素为 display: flex 时，设置 justify-content: center
+
+- 竖直居中
+  
+  - 子元素为 display: inline-block/flex/grid/table 时，父元素设置 vertical-align: middle
+  
+  - 父元素为 display: flex 时，设置 align-items: center
+
 ## 单位
 
 - px
