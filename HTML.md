@@ -196,3 +196,29 @@ listElement.appendChild(fragment)
   - iframe 也可以获取父级 window 对象，同源可操作
     - window.top：顶级
     - window.parent：上一级
+
+## 如何判断页面已滚动至底部
+
+```js
+window.onscroll = function (e) {
+  let { scrollHeight, scrollTop, clientHeight } 
+    = document.documentElement;
+  if(clientHeight + scrollTop >= scrollHeight) {
+    // do something
+  }
+}
+```
+
+## addEventListener
+
+关键在于可以有第三个参数 options，包含以下选项：
+
+- capture：默认 false，表示在冒泡阶段触发；设为 true 则在捕获阶段触发
+
+- once：设为 true 表示只触发一次
+
+- passive：设为 true 表示告诉浏览器，我的回调函数里不会 preventDefault
+  
+  - 主要用于提升滚动性能：在移动端页面中 touchstart 事件会触发滚动，并且这个事件的 cancelable 属性为 true，即能够被 preventDefault；此时，如果不设置 passive=true，浏览器不知道你是否在回调中阻止了滚动，必须等到运行完你的回调才会让页面滚动，这将导致一定的卡顿
+  
+  - Tips：触发 PC 页面滚动的 scroll 事件 cancelable 为 false，滚动不能被阻止
