@@ -255,3 +255,44 @@ transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out|cubic-bezie
 - border 并非直线，而是三角形
 - 平时我们将 border 宽度设置得很小，content 在中间挡住 border 的尖角部分，剩下的部分看起来就像是一条直线
 - 但如果把 border 宽度设置得很大，content 设置得很小，就能看到 border 三角形的真身
+
+## transform
+
+- transform 可以对元素进行平移、旋转、缩放、倾斜
+
+```css
+transform: translate(x, y);
+transform: rotate(0.5turn/180deg);
+transform: scale(x, y);
+transform: skew(x, y);
+```
+
+- 默认为 none，如果被设为非 none，则会创建一个 stacking context
+
+## stacking context
+
+- 层叠上下文：体现元素的遮挡关系
+
+- 什么情况会创建层叠上下文
+  
+  - 文档根元素
+  
+  - position: absolute | relative，且 z-index 不为 auto
+  
+  - position: flxed | sticky
+  
+  - flex 容器子元素，且 z-index 不为 auto
+  
+  - grid 容器子元素，且 z-index 不为 auto
+  
+  - opacity 小于 1
+  
+  - transform/filter/mask/clip-path 不为 none
+  
+  - contain 包含 layout 或 paint
+
+- 默认子元素在父元素上方，兄弟元素越靠后越往上
+
+- 可以设置 z-index 手动调整，但注意其只在兄弟元素间比较
+
+- 没有创建层叠上下文的元素，与父元素位于同一层级
