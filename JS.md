@@ -911,6 +911,91 @@ function cloneDeep(value){
   - 只能定义在函数参数的最后！
   - 是一个真正的 Array
 
+## 迭代协议
+
+- ES6 的补充规范，它并不是新的语法，而是一种约定
+
+- 可迭代协议
+  
+  - 允许 JS 对象定义它的迭代行为，例如在 for...of 中哪些值可以被遍历到
+  
+  - String、Array、Map、Set 都是可迭代对象，有默认的迭代行为；而 Object 则没有
+  
+  - 对象想要可迭代，必须实现 obj[Symbol.iterator]，它是一个无入参函数，返回一个符合迭代器协议的对象
+
+- 迭代器协议
+  
+  - 定义了迭代器产生一系列值的标准方式
+  
+  - 一个对象想要成为迭代器，必须实现这样的 next 方法：接收 0/1 个参数，返回一个对象 ret：ret.done=false 表示迭代器能够产生下一个值；ret.value 表示迭代器产生的值，ret.done=true 时可以省略
+
+- 我们无法检测特定对象是否实现了迭代器协议，但我们一般将可迭代协议和迭代器协议在同一个对象上实现（例如生成器对象）
+
+```js
+const myIterator = {
+    next: function() {},
+    [Symbol.iterator]: function() { return this }
+}
+
+
+const generatorObject = function*() { yield 1; }();
+```
+
+- 一些语法需要对象实现可迭代协议：for...of，扩展运算符，解构赋值，yield*
+  
+  - **存疑：扩展运算符和解构赋值可以对未实现可迭代协议的 Object 使用**
+
+- 迭代器可以永不结束，也就是永远返回 { done: false }
+
+## ES 更新
+
+> [ECMAScript | 苏纯的博客](https://suchun.vip/ECMAScript/ES6.html)
+
+### ES6（ECMAScript 2015）
+
+- let & const
+
+- 解构赋值
+
+- 模板字符串
+
+- 扩展运算符
+
+- 函数：默认参数，箭头函数
+
+- 对象：属性简写，属性可使用表达式
+
+```js
+const a = 100
+const o = { a }  // const o = { a: 100 }
+
+const o = { ['na' + 'me']: 'zzn' }
+```
+
+- Symbol
+
+- Set & Map
+
+- Promise
+
+- 迭代协议，for...of
+
+- Generator
+
+- Class，extends
+
+- ESM
+
+### ES7（ECMAScript 2016）
+
+- Array.prototype.includes
+
+- **（等价于 Math.pow）
+
+### ES8（ECMAScript 2017）
+
+- async/await
+
 ## 创建二维数组
 
 ```js
