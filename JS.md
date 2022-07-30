@@ -996,6 +996,42 @@ const o = { ['na' + 'me']: 'zzn' }
 
 - async/await
 
+## class
+
+```js
+class Person {
+    name;
+    constructor(name) {
+        this.name = name;
+    }
+    hello() { console.log(`hello ${this.name}`); }
+    static TYPE = 'Person';
+    static getType() { return Person.TYPE; }
+}
+
+class Boy extends Person {
+    constructor(name, age) {
+        super(name);  // must be called before using this
+        this.age = age;
+    }
+}
+```
+
+class 只是原型继承的语法糖，因此用 function 声明的 Person 也可以被 extends。
+
+class 只提供单继承，如果想实现多继承，可以考虑 mixin 方式：
+
+```js
+const AMixin = (Base) => class extends Base {
+  a() { }
+};
+const BMixin = (Base) => class extends Base {
+  b() { }
+};
+class Person { }
+class Boy extends AMixin(BMixin(Person)) { }
+```
+
 ## 创建二维数组
 
 ```js
