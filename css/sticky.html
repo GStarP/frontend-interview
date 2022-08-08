@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<style>
+  .phone {
+    width: 320px;
+    height: 600px;
+    outline: 1px solid #000;
+  }
+
+  .tool-bar {
+    height: 48px;
+    text-align: center;
+  }
+
+  .list {
+    height: 100%;
+    overflow: auto;
+  }
+
+  /* 如果为 sub-list 设置滚动，则 sticky 将相对于此而非 list
+  从视觉上看失去粘滞效果 */
+  /* .sub-list {
+    overflow: auto;
+  } */
+
+  .title {
+    position: sticky;
+    top: 0;
+    height: 40px;
+    background-color: gray;
+  }
+</style>
+
+<body>
+  <div class="phone">
+    <div class="tool-bar">iPhone 18</div>
+    <div class="list">
+      <div class="sub-list">
+        <div class="title">A</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+        <div>Abc</div>
+      </div>
+      <div class="sub-list">
+        <div class="title">B</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+        <div>Bcd</div>
+      </div>
+      <div class="sub-list">
+        <div class="title">C</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+        <div>Cde</div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
