@@ -59,24 +59,41 @@
 ## Cookie
 
 - key=value（key 唯一）
+
 - Set-Cookie 首部属性
-  - Expires：过期时间
+  
+  - Expires：过期时间（date）
+  
+  - Max-Age：过期时间（s）
+    
     - 正数：在 X 秒内持久化，哪怕关闭浏览器或电脑也能够保持
-    - 负数：不持久化，关闭浏览器就消失
-    - 0：立即删除
+    
+    - 未指定：不持久化，关闭浏览器就消失
+    
+    - 负数或零：立即失效
+  
   - Domain：生成该 Cookie 的域名
+    
     - Cookie 不可跨域名，哪怕是同个一级域名下的不同二级域名
+  
   - Path：允许使用该 Cookie 的路径
+    
     - 设为 / 代表允许所有
+  
   - Secure：是否仅允许安全协议（如 HTTPS）传输
+  
   - HttpOnly：禁止通过 document.cookie 读取
+  
   - SameSite
+    
     - Lax（默认）：允许导航到目标源的 GET 请求携带
       - 导航共三种：`<a href="">`，`<link rel="prerender" href="">`，`<form method="GET">`
       - 比如在 CSDN 通过打开 Github 链接，允许携带本地的 Github 登录状态 Cookie
     - Strict：只允许同源请求携带
     - None：允许所有跨域携带；但必须设置 Secure 属性使 Cookie 通过 HTTPS 发送
+
 - 携带过程
+  
   - 客户端首次访问服务端，服务端响应中有首部 Set-Cookie: uid=6fag5h
   - 客户端将 Cookie(uid=6fag5h) 存储
   - 客户端发送请求时，如果请求匹配 domain&path，就自动加上首部 Cookie: uid=6fag5h
